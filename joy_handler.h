@@ -5,7 +5,7 @@
 #include <QMutex>
 #include <QMap>
 #include <QAtomicInteger>
-#include <thread>
+#include <QThread>
 
 #include "buttons.h"
 
@@ -16,6 +16,9 @@ typedef struct _SDL_Joystick SDL_Joystick;
 
 struct _SDL_GameController;
 typedef struct _SDL_GameController SDL_GameController;
+
+struct SDL_Thread;
+typedef struct SDL_Thread SDL_Thread;
 
 class JoyHandler : public QObject
 {
@@ -40,13 +43,15 @@ signals:
     void debugMessage(const QString &msg);
     void sendCommand(const NXSendCmd &cmd);
     void joysticksListUpdated();
+    void startThread();
 
 private:
     void runner();
+    static int runner_s(void *data);
     QAtomicInteger<bool> m_running;
     QAtomicInteger<bool> m_imuEnabled;
     QAtomicInteger<int> m_activeGamepad;
-    std::thread m_thread;
+    SDL_Thread *m_thread = nullptr;
     QMutex m_mutex;
 
     QByteArray m_rumble;

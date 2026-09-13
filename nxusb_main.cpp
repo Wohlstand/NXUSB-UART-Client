@@ -148,6 +148,7 @@ void NXUsbMain::on_doConnect_clicked()
     if(m_serial.isConnected())
     {
         m_joy.stop();
+        emit m_joy.joysticksListUpdated();
         m_serial.closeBus();
         ui->doConnect->setText(tr("Connect"));
         ui->serialPort->setEnabled(true);

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_joystick.h>
+#include <SDL2/SDL_thread.h>
 #include <SDL2/SDL_gamecontroller.h>
 
 #include <QThread>
@@ -52,22 +53,26 @@ JoyHandler::JoyHandler(QObject *o) :
 
 JoyHandler::~JoyHandler()
 {
-    m_running = false;
-
-    if(m_thread.joinable())
-        m_thread.join();
-
+    stop();
     SDL_Quit();
 }
 
 void JoyHandler::start()
 {
-    m_thread = std::thread(&JoyHandler::runner, this);
+    stop();
+    m_thread = SDL_CreateThread(&JoyHandler::runner_s, "Joystick Watcher", this);
+    emit startThread();
 }
 
 void JoyHandler::stop()
 {
     m_running = false;
+
+    if(m_thread)
+    {
+        SDL_WaitThread(m_thread, nullptr);
+        m_thread = nullptr;
+    }
 }
 
 void JoyHandler::setIMU(bool en)
@@ -185,7 +190,13 @@ void JoyHandler::runner()
         ctrlCleanUp(it);
     m_mutex.unlock();
     m_joysticks.clear();
-    emit joysticksListUpdated();
+}
+
+int JoyHandler::runner_s(void *data)
+{
+    JoyHandler *self = reinterpret_cast<JoyHandler*>(data);
+    self->runner();
+    return 0;
 }
 
 void JoyHandler::ctrlCleanUp(ControllerEntry &entry)
@@ -428,3 +439,4 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
 
     return *tilting || *buttons;
 }
+
