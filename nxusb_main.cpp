@@ -35,6 +35,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     tilt.tail = 0xFF;
 
     memset(&cmd, 0, sizeof(cmd));
+    cmd.data.tail.tail[0] = 0xFF;
     cmd.tail = 0xFF;
 
     QObject::connect(&m_serial, &NXSerial::debugMessage, this, [this](const QString &msg)->void

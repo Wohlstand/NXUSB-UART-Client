@@ -39,12 +39,14 @@ enum NxBtButtons
 enum NXCommand
 {
     CMD_None = 0,
-    CMD_ButtonsUpdate = 1,
-    CMD_Tilt = 2,
-    CMD_Ping = 3,
-    CMD_Reset = 4,
-    CMD_QueryPlayer = 5,
-    CMD_QueryIMU = 6,
+    CMD_ButtonsUpdate = 1,  // 14
+    CMD_Tilt = 2,           // 14
+    CMD_Ping = 3,           // 1
+    CMD_Reset = 4,          // 1
+    CMD_QueryPlayer = 5,    // 1
+    CMD_QueryIMU = 6,       // 1
+
+    CMD_END
 };
 
 struct __attribute__((packed)) NXSendCmd
@@ -52,7 +54,7 @@ struct __attribute__((packed)) NXSendCmd
     // Command of @NXCommand type
     uint8_t cmd;
 
-    union
+    union Data
     {
         struct Buttons
         {
@@ -61,17 +63,17 @@ struct __attribute__((packed)) NXSendCmd
             uint16_t stick_r[2];
         } state;
 
-        // Accelerometer / Gyroscope X, Y, Z, 3 samples
+        // Accelerometer / Gyroscope X, Y, Z
         struct Tilt
         {
             int16_t accel[3];
             int16_t gyro[3];
         } tilt;
 
-        struct Padding
+        struct Tail
         {
-            uint8_t junk[12];
-        } pad;
+            uint8_t tail[12];
+        } tail;
     } data;
 
     uint8_t tail;

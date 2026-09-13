@@ -51,7 +51,19 @@ bool NXSerial::write(const NXSendCmd &data)
     if(!m_serialPort.isOpen())
         return false;
 
-    m_serialPort.write((const char*)&data, sizeof(data));
+    size_t dataSize = sizeof(data);
+
+    switch(data.cmd)
+    {
+    case CMD_Ping:
+    case CMD_Reset:
+    case CMD_QueryIMU:
+    case CMD_QueryPlayer:
+        dataSize = 2;
+        break;
+    }
+
+    m_serialPort.write((const char*)&data, dataSize);
     m_serialPort.flush();
 
     // qDebug() << "Write: " << QByteArray((const char*)&data, sizeof(data)).toHex(',');
