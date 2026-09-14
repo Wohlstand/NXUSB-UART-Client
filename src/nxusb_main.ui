@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1007</width>
-    <height>801</height>
+    <width>1021</width>
+    <height>804</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -147,15 +147,29 @@
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QToolButton" name="buttonR">
-            <property name="text">
-             <string>R</string>
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/sh-r.png</normaloff>:/buttons/sh-r.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>60</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QToolButton" name="buttonZR">
-            <property name="text">
-             <string>ZR</string>
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/tr-zr.png</normaloff>:/buttons/tr-zr.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>60</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -199,8 +213,15 @@
          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,100000,0">
           <item>
            <widget class="QToolButton" name="buttonMinus">
-            <property name="text">
-             <string>-</string>
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/minus.png</normaloff>:/buttons/minus.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -219,55 +240,46 @@
           </item>
           <item>
            <widget class="QToolButton" name="buttonPlus">
-            <property name="text">
-             <string>+</string>
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/plus.png</normaloff>:/buttons/plus.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="3" rowspan="2">
-        <widget class="QFrame" name="frame">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="2" column="2">
+        <widget class="QFrame" name="frame_6">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
-          </property>
-          <item row="1" column="3">
-           <widget class="QToolButton" name="buttonA">
-            <property name="text">
-             <string>A</string>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QToolButton" name="buttonCapture">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/capture.png</normaloff>:/buttons/capture.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="buttonX">
-            <property name="text">
-             <string>X</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QToolButton" name="buttonY">
-            <property name="text">
-             <string>Y</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <spacer name="horizontalSpacer_9">
+          <item>
+           <spacer name="horizontalSpacer_6">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -279,30 +291,71 @@
             </property>
            </spacer>
           </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="buttonB">
-            <property name="text">
-             <string>B</string>
+          <item>
+           <widget class="QToolButton" name="buttonHome">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/home.png</normaloff>:/buttons/home.png</iconset>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <spacer name="horizontalSpacer_10">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
+            <property name="iconSize">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>24</width>
+              <height>24</height>
              </size>
             </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="1" rowspan="2">
+       <item row="0" column="0">
+        <widget class="QFrame" name="frame_3">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QToolButton" name="buttonL">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/sh-l.png</normaloff>:/buttons/sh-l.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>60</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="buttonZL">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/tr-zl.png</normaloff>:/buttons/tr-zl.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>60</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="buttonsLpR">
+         <property name="text">
+          <string>L+R</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" rowspan="2" colspan="2">
         <widget class="QFrame" name="frame_4">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -335,12 +388,24 @@
             <property name="text">
              <string>🔽</string>
             </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QToolButton" name="buttonDLeft">
             <property name="text">
              <string>◀️</string>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -349,12 +414,24 @@
             <property name="text">
              <string>▶️</string>
             </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="buttonDUp">
             <property name="text">
              <string>🔼</string>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -374,24 +451,68 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QFrame" name="frame_6">
+       <item row="1" column="3" rowspan="2" colspan="2">
+        <widget class="QFrame" name="frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QToolButton" name="buttonCapture">
-            <property name="text">
-             <string>📸</string>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="1" column="3">
+           <widget class="QToolButton" name="buttonA">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/a.png</normaloff>:/buttons/a.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
           </item>
-          <item>
-           <spacer name="horizontalSpacer_6">
+          <item row="0" column="2">
+           <widget class="QToolButton" name="buttonX">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/x.png</normaloff>:/buttons/x.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QToolButton" name="buttonY">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/y.png</normaloff>:/buttons/y.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="horizontalSpacer_9">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -403,47 +524,34 @@
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="QToolButton" name="buttonHome">
-            <property name="text">
-             <string>🏠</string>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="buttonB">
+            <property name="icon">
+             <iconset resource="../res/nxusb.qrc">
+              <normaloff>:/buttons/b.png</normaloff>:/buttons/b.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
             </property>
            </widget>
+          </item>
+          <item row="1" column="4">
+           <spacer name="horizontalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QFrame" name="frame_3">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QToolButton" name="buttonL">
-            <property name="text">
-             <string>L</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="buttonZL">
-            <property name="text">
-             <string>ZL</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QToolButton" name="buttonsLpR">
-         <property name="text">
-          <string>L+R</string>
-         </property>
         </widget>
        </item>
       </layout>
@@ -517,13 +625,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1007</width>
+     <width>1021</width>
      <height>20</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res/nxusb.qrc"/>
+ </resources>
  <connections/>
 </ui>

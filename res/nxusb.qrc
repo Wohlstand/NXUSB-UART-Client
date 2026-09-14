@@ -4,5 +4,38 @@
         <file>icon/icon32.png</file>
         <file>icon/icon48.png</file>
         <file>icon/icon256.png</file>
+        <file>buttons/a.png</file>
+        <file>buttons/b.png</file>
+        <file>buttons/capture.png</file>
+        <file>buttons/dpad.png</file>
+        <file>buttons/dpad-down.png</file>
+        <file>buttons/dpad-down-left.png</file>
+        <file>buttons/dpad-left.png</file>
+        <file>buttons/dpad-left-up.png</file>
+        <file>buttons/dpad-right.png</file>
+        <file>buttons/dpad-right-down.png</file>
+        <file>buttons/dpad-up.png</file>
+        <file>buttons/dpad-up-right.png</file>
+        <file>buttons/home.png</file>
+        <file>buttons/minus.png</file>
+        <file>buttons/plus.png</file>
+        <file>buttons/sh-l.png</file>
+        <file>buttons/sh-r.png</file>
+        <file>buttons/stick-l-down.png</file>
+        <file>buttons/stick-l-left.png</file>
+        <file>buttons/stick-l-neutral.png</file>
+        <file>buttons/stick-l-press.png</file>
+        <file>buttons/stick-l-right.png</file>
+        <file>buttons/stick-l-up.png</file>
+        <file>buttons/stick-r-down.png</file>
+        <file>buttons/stick-r-left.png</file>
+        <file>buttons/stick-r-neutral.png</file>
+        <file>buttons/stick-r-press.png</file>
+        <file>buttons/stick-r-right.png</file>
+        <file>buttons/stick-r-up.png</file>
+        <file>buttons/tr-zl.png</file>
+        <file>buttons/tr-zr.png</file>
+        <file>buttons/x.png</file>
+        <file>buttons/y.png</file>
     </qresource>
 </RCC>

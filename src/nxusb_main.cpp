@@ -111,7 +111,24 @@ NXUsbMain::NXUsbMain(QWidget *parent)
         });
     };
 
-    buildButton(ui->buttonsLpR, BUTTON_L | BUTTON_R, "L+R");
+    auto buildPushButton = [this](QPushButton *buttonObj, uint32_t new_btns, QString label)->void
+    {
+        QObject::connect(buttonObj, &QPushButton::pressed, this, [this, new_btns, label]()->void
+        {
+            buttons.data.state.buttons |= new_btns;
+            m_serial.write(buttons);
+            ui->debugOut->appendPlainText(QString("Press %1").arg(label));
+        });
+
+        QObject::connect(buttonObj, &QPushButton::released, this, [this, new_btns, label]()->void
+        {
+            buttons.data.state.buttons &= ~new_btns;
+            m_serial.write(buttons);
+            ui->debugOut->appendPlainText(QString("Release %1").arg(label));
+        });
+    };
+
+    buildPushButton(ui->buttonsLpR, BUTTON_L | BUTTON_R, "L+R");
 
     buildButton(ui->buttonA, BUTTON_A, "A");
     buildButton(ui->buttonB, BUTTON_B, "B");
