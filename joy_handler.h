@@ -33,7 +33,7 @@ public:
 
     void setIMU(bool en);
     void setVibro(bool en);
-    void playRunbleData(const QByteArray &data);
+    void playRunbleData(QByteArray data);
 
     QStringList getJoysticks();
     int numJoysticks();
@@ -77,6 +77,7 @@ private:
         bool swap_buttons = false;
         bool has_gyro = false;
         bool has_accel = false;
+        bool has_rumble = false;
     };
 
     static void ctrlCleanUp(ControllerEntry &entry);

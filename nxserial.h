@@ -36,7 +36,7 @@ signals:
     void errorMessage(const QString &message);
     void playerChange(int player);
     void imuEnabled(bool imuEn);
-    void rumbleData(const QByteArray &data);
+    void rumbleData(QByteArray data);
     void imuSensitivityData(const QByteArray &data);
     void imuRegWrite(const QByteArray &data);
     void homeLights(const QByteArray &data);
