@@ -3,6 +3,7 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QtDebug>
+#include <QIcon>
 
 #include "nxusb_main.h"
 #include "./ui_nxusb_main.h"
@@ -22,6 +23,13 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 , ui(new Ui::NXUsbMain)
 {
     ui->setupUi(this);
+
+    QIcon wIcon;
+    wIcon.addFile(":/icon/icon16.png", QSize(16, 16));
+    wIcon.addFile(":/icon/icon32.png", QSize(32, 32));
+    wIcon.addFile(":/icon/icon48.png", QSize(48, 48));
+    wIcon.addFile(":/icon/icon256.png", QSize(256, 256));
+    setWindowIcon(wIcon);
 
     memset(&buttons, 0, sizeof(buttons));
     buttons.cmd = CMD_ButtonsUpdate;

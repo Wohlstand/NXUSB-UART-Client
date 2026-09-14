@@ -23,6 +23,9 @@ set(PROJECT_SOURCES
     src/nxserial.cpp
     src/joy_handler.h
     src/joy_handler.cpp
+
+    # Resources
+    res/nxusb.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
