@@ -49,7 +49,17 @@
         </spacer>
        </item>
        <item>
-        <widget class="QComboBox" name="joysticks"/>
+        <widget class="QComboBox" name="joysticks">
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="playerId">
