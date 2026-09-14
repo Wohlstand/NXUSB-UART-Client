@@ -14,10 +14,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets SerialPort)
 find_package(SDL2 REQUIRED)
 
 set(PROJECT_SOURCES
-        main.cpp
-        nxusb_main.cpp
-        nxusb_main.h
-        nxusb_main.ui
+    src/buttons.h
+    src/main.cpp
+    src/nxusb_main.cpp
+    src/nxusb_main.h
+    src/nxusb_main.ui
+    src/nxserial.h
+    src/nxserial.cpp
+    src/joy_handler.h
+    src/joy_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -39,9 +44,6 @@ else()
     else()
         add_executable(nxusb-client
             ${PROJECT_SOURCES}
-            nxserial.h nxserial.cpp
-            joy_handler.h joy_handler.cpp
-            buttons.h
         )
     endif()
 endif()
@@ -65,8 +67,9 @@ endif()
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.nxusb-client)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.nxusb-client)
 endif()
+
 set_target_properties(nxusb-client PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
@@ -85,3 +88,4 @@ install(TARGETS nxusb-client
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(nxusb-client)
 endif()
+
