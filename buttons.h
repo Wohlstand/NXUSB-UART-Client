@@ -45,8 +45,22 @@ enum NXCommand
     CMD_Reset = 4,          // 1
     CMD_QueryPlayer = 5,    // 1
     CMD_QueryIMU = 6,       // 1
+    CMD_QueryVibro = 7,     // 1
+    CMD_QueryConfig = 8,    // 1
 
     CMD_END
+};
+
+enum NXPlayer
+{
+    LED_PLAYER_1 = 0x01,
+    LED_PLAYER_2 = 0x02,
+    LED_PLAYER_3 = 0x04,
+    LED_PLAYER_4 = 0x08,
+    LED_PLAYER_1_FLASH = 0x10,
+    LED_PLAYER_2_FLASH = 0x20,
+    LED_PLAYER_3_FLASH = 0x40,
+    LED_PLAYER_4_FLASH = 0x80,
 };
 
 struct __attribute__((packed)) NXSendCmd

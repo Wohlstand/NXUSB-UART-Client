@@ -37,6 +37,10 @@ signals:
     void playerChange(int player);
     void imuEnabled(bool imuEn);
     void rumbleData(const QByteArray &data);
+    void imuSensitivityData(const QByteArray &data);
+    void imuRegWrite(const QByteArray &data);
+    void homeLights(const QByteArray &data);
+    void vibroEnabled(bool imuEn);
 };
 
 #endif // NXSERIAL_H

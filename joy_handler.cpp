@@ -38,6 +38,8 @@ JoyHandler::JoyHandler(QObject *o) :
     m_tilting.tail = 0xFF;
 
     m_activeGamepad = 0;
+    m_imuEnabled = false;
+    m_vibroEnabled = false;
 
     float accelScale = SDL_STANDARD_GRAVITY / SWITCH_ACCEL_SCALE;
     float gyroScale = M_PI / 180.0 / SWITCH_GYRO_SCALE;
@@ -80,23 +82,25 @@ void JoyHandler::setIMU(bool en)
     m_imuEnabled = en;
 }
 
+void JoyHandler::setVibro(bool en)
+{
+    m_vibroEnabled = en;
+}
+
 void JoyHandler::playRunbleData(const QByteArray &data)
 {
-    m_mutex.lock();
-    m_rumble.append(data);
-    m_mutex.unlock();
+    m_rumbleMutex.lock();
+    m_rumble = data;
+    m_rumbleMutex.unlock();
 }
 
 QStringList JoyHandler::getJoysticks()
 {
     QStringList ret;
 
-    m_mutex.lock();
-
-    for(ControllerEntry &it : m_joysticks)
-        ret.push_back(it.name);
-
-    m_mutex.unlock();
+    m_joysticksMutex.lock();
+    ret = m_joysticksNames;
+    m_joysticksMutex.unlock();
 
     return ret;
 }
@@ -105,9 +109,9 @@ int JoyHandler::numJoysticks()
 {
     int ret;
 
-    m_mutex.lock();
-    ret = m_joysticks.size();
-    m_mutex.unlock();
+    m_joysticksMutex.lock();
+    ret = m_joysticksNames.size();
+    m_joysticksMutex.unlock();
 
     return ret;
 }
@@ -131,7 +135,7 @@ void JoyHandler::runner()
     for(int i = 0; i < numJoysticks; ++i)
         addJoystick(i);
 
-    emit joysticksListUpdated();
+    joysticksSyncList();
 
     // Start the watching
     while(m_running)
@@ -147,18 +151,16 @@ void JoyHandler::runner()
             case SDL_JOYDEVICEADDED:
                 emit debugMessage(QString("-- Connecting new gamepad! Index %1").arg(evt.jdevice.which));
                 addJoystick(evt.jdevice.which);
-                emit joysticksListUpdated();
+                joysticksSyncList();
                 break;
 
             case SDL_JOYDEVICEREMOVED:
                 emit debugMessage(QString("-- Disconnecting old gamepad! Instance %1").arg(evt.jdevice.which));
                 removeJoystick(evt.jdevice.which);
-                emit joysticksListUpdated();
+                joysticksSyncList();
                 break;
             }
         }
-
-        m_mutex.lock();
 
         int gamepad = 0;
 
@@ -180,16 +182,15 @@ void JoyHandler::runner()
             }
         }
 
-        m_mutex.unlock();
-
         QThread::msleep(1000 / 130);
     }
 
-    m_mutex.lock();
     for(ControllerEntry &it : m_joysticks)
         ctrlCleanUp(it);
-    m_mutex.unlock();
+
     m_joysticks.clear();
+
+    joysticksSyncList();
 }
 
 int JoyHandler::runner_s(void *data)
@@ -256,16 +257,11 @@ void JoyHandler::addJoystick(int joyIdx)
 
     SDL_JoystickID instance = SDL_JoystickInstanceID(entry.joy);
 
-    m_mutex.lock();
     m_joysticks.insert(instance, std::move(entry));
-    m_mutex.unlock();
-
 }
 
 void JoyHandler::removeJoystick(int instance)
 {
-    m_mutex.lock();
-
     auto it = m_joysticks.find(instance);
 
     if(it != m_joysticks.end())
@@ -274,8 +270,6 @@ void JoyHandler::removeJoystick(int instance)
         ctrlCleanUp(entry);
         m_joysticks.remove(instance);
     }
-
-    m_mutex.unlock();
 }
 
 
@@ -440,3 +434,13 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     return *tilting || *buttons;
 }
 
+void JoyHandler::joysticksSyncList()
+{
+    m_joysticksMutex.lock();
+    m_joysticksNames.clear();
+    for(ControllerEntry &it : m_joysticks)
+        m_joysticksNames.push_back(it.name);
+    m_joysticksMutex.unlock();
+
+    emit joysticksListUpdated();
+}

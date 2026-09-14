@@ -2,6 +2,7 @@
 #include <QTextCursor>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QtDebug>
 
 #include "nxusb_main.h"
 #include "./ui_nxusb_main.h"
@@ -49,15 +50,26 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     });
 
     QObject::connect(&m_serial, &NXSerial::imuEnabled, &m_joy, &JoyHandler::setIMU, Qt::QueuedConnection);
+    QObject::connect(&m_serial, &NXSerial::imuEnabled, &m_joy, [this](bool en)->void
+    {
+        ui->stateIMU->setChecked(en);
+    }, Qt::QueuedConnection);
+
+    QObject::connect(&m_serial, &NXSerial::vibroEnabled, &m_joy, &JoyHandler::setVibro, Qt::QueuedConnection);
+    QObject::connect(&m_serial, &NXSerial::vibroEnabled, &m_joy, [this](bool en)->void
+    {
+        ui->stateVibro->setChecked(en);
+    }, Qt::QueuedConnection);
+
     QObject::connect(&m_serial, &NXSerial::rumbleData, &m_joy, &JoyHandler::playRunbleData, Qt::QueuedConnection);
 
     QObject::connect(&m_serial, &NXSerial::playerChange, this, [this](int player)->void
     {
         ui->playerId->setText(QString("[%1][%2][%3][%4]")
-            .arg(player >= 1 ? "*" : " ")
-            .arg(player >= 2 ? "*" : " ")
-            .arg(player >= 3 ? "*" : " ")
-            .arg(player >= 4 ? "*" : " ")
+            .arg((player & (LED_PLAYER_1 | LED_PLAYER_1_FLASH)) != 0 ? "*" : " ")
+            .arg((player & (LED_PLAYER_2 | LED_PLAYER_2_FLASH)) != 0 ? "*" : " ")
+            .arg((player & (LED_PLAYER_3 | LED_PLAYER_3_FLASH)) != 0 ? "*" : " ")
+            .arg((player & (LED_PLAYER_4 | LED_PLAYER_4_FLASH)) != 0 ? "*" : " ")
         );
     });
 
@@ -72,7 +84,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     {
         ui->joysticks->clear();
         ui->joysticks->addItems(m_joy.getJoysticks());
-    }, Qt::BlockingQueuedConnection);
+    }, Qt::QueuedConnection);
 
     auto buildButton = [this](QToolButton *buttonObj, uint32_t new_btns, QString label)->void
     {
@@ -148,7 +160,6 @@ void NXUsbMain::on_doConnect_clicked()
     if(m_serial.isConnected())
     {
         m_joy.stop();
-        emit m_joy.joysticksListUpdated();
         m_serial.closeBus();
         ui->doConnect->setText(tr("Connect"));
         ui->serialPort->setEnabled(true);
@@ -192,10 +203,7 @@ void NXUsbMain::on_cmdPing_clicked()
 
 void NXUsbMain::on_querySetup_clicked()
 {
-    cmd.cmd = CMD_QueryPlayer;
-    m_serial.write(cmd);
-
-    cmd.cmd = CMD_QueryIMU;
+    cmd.cmd = CMD_QueryConfig;
     m_serial.write(cmd);
 }
 

@@ -2,6 +2,8 @@
 #include <QtDebug>
 
 
+static const uint8_t c_rumbleNeutral[8] = {0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40};
+
 NXSerial::NXSerial(QObject *parent)
 : QObject{parent}
 {
@@ -44,6 +46,9 @@ bool NXSerial::openBus()
 void NXSerial::closeBus()
 {
     m_serialPort.close();
+    emit playerChange(0);
+    emit imuEnabled(false);
+    emit vibroEnabled(false);
 }
 
 bool NXSerial::write(const NXSendCmd &data)
@@ -96,6 +101,14 @@ void NXSerial::handleReadyRead()
                 break;
             }
 
+            default:
+            {
+                QString debug = QString::fromUtf8(data.mid(1, -1).toHex(','));
+                qDebug() << "Invalid reply: " << data[0] << "Value:" << debug;
+                emit debugMessage(debug);
+                break;
+            }
+
             case 'p': // Player Number
             {
                 if(data.size() < 2)
@@ -110,13 +123,6 @@ void NXSerial::handleReadyRead()
                 break;
             }
 
-            case 'r': // Rumble data
-            {
-                qDebug() << "Rumble data" << QString::fromUtf8(data.toHex(','));
-                emit rumbleData(data.mid(1, -1));
-                break;
-            }
-
             case 'i': // IMU enable/disable
             {
                 if(data.size() < 2)
@@ -127,6 +133,67 @@ void NXSerial::handleReadyRead()
 
                 qDebug() << "IMU toggled" << (int)data[1];
                 emit imuEnabled(data[1] != '\0');
+                break;
+            }
+
+            case 's': // IMU Sesntivity
+            {
+                qDebug() << "IMU Sesntivity" << QString::fromUtf8(data.toHex(','));
+                emit imuSensitivityData(data.mid(1, -1));
+                break;
+            }
+
+            case 'e': // IMU register write
+            {
+                qDebug() << "IMU register write" << QString::fromUtf8(data.toHex(','));
+                emit imuRegWrite(data.mid(1, -1));
+                break;
+            }
+
+            case 'r': // Rumble data
+            {
+                auto rumble = data.mid(1, -1);
+                // Print everything but neutral
+                if(rumble.size() != 8 || memcmp(rumble.data(), c_rumbleNeutral, 8) != 0)
+                    qDebug() << "Rumble data" << QString::fromUtf8(rumble.toHex(','));
+                emit rumbleData(rumble);
+                break;
+            }
+
+            case 'h': // Home Lights
+            {
+                qDebug() << "Home Lights" << QString::fromUtf8(data.toHex(','));
+                emit homeLights(data.mid(1, -1));
+                break;
+            }
+
+            case 'v': // Vibro enable/disable
+            {
+                if(data.size() < 2)
+                {
+                    emit errorMessage(QObject::tr("Received invalid Vibro enable flag: %1").arg(QString::fromUtf8(data.toHex(','))));
+                    break; // Invalid data
+                }
+
+                qDebug() << "Vibro toggled" << (int)data[1];
+                emit vibroEnabled(data[1] != '\0');
+                break;
+            }
+
+            case 'c': // Config
+            {
+                if(data.size() < 4)
+                {
+                    emit errorMessage(QObject::tr("Received invalid data for config setup: %1").arg(QString::fromUtf8(data.toHex(','))));
+                    break; // Invalid data
+                }
+
+                qDebug() << "Change player" << (int)data[1];
+                emit playerChange(data[1]);
+                qDebug() << "Change IMU" << (int)data[2];
+                emit imuEnabled(data[2]);
+                qDebug() << "Change Vibro" << (int)data[3];
+                emit vibroEnabled(data[3]);
                 break;
             }
             }

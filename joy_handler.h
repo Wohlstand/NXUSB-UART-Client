@@ -32,6 +32,7 @@ public:
     void stop();
 
     void setIMU(bool en);
+    void setVibro(bool en);
     void playRunbleData(const QByteArray &data);
 
     QStringList getJoysticks();
@@ -50,11 +51,12 @@ private:
     static int runner_s(void *data);
     QAtomicInteger<bool> m_running;
     QAtomicInteger<bool> m_imuEnabled;
+    QAtomicInteger<bool> m_vibroEnabled;
     QAtomicInteger<int> m_activeGamepad;
     SDL_Thread *m_thread = nullptr;
-    QMutex m_mutex;
 
     QByteArray m_rumble;
+    QMutex m_rumbleMutex;
 
     NXSendCmd m_buttons;
     NXSendCmd m_tilting;
@@ -83,8 +85,11 @@ private:
     void removeJoystick(int instance);
     bool joystickProcess(ControllerEntry &entry, bool *buttons, bool *tilting);
 
+    void joysticksSyncList();
 
     QMap<SDL_JoystickID, ControllerEntry> m_joysticks;
+    QStringList m_joysticksNames;
+    QMutex m_joysticksMutex;
 };
 
 #endif // JOY_HANDLER_H
