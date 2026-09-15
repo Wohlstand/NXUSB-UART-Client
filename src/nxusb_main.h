@@ -26,6 +26,7 @@
 #define NXUSB_MAIN_H
 
 #include <QMainWindow>
+#include <QMap>
 
 #include "nxserial.h"
 #include "joy_handler.h"
@@ -44,6 +45,16 @@ class NXUsbMain : public QMainWindow
     NXSendCmd buttons;
     NXSendCmd tilt;
     NXSendCmd cmd;
+
+    struct ButtonStatus
+    {
+        QPixmap off;
+        QPixmap on;
+    };
+
+    QMap<NxBtButtons, ButtonStatus> m_buttonStatus;
+
+    void loadButton(NxBtButtons button, const QString &resource);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -65,6 +76,10 @@ private slots:
     void on_querySetup_clicked();
 
     void on_joysticks_currentIndexChanged(int index);
+
+    void on_actionQuit_triggered();
+
+    void on_actionAbout_triggered();
 
 private:
     Ui::NXUsbMain *ui;

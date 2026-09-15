@@ -26,12 +26,28 @@
 #include <QTextCursor>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QColorTransform>
 #include <QtDebug>
 #include <QIcon>
 
 #include "nxusb_main.h"
 #include "./ui_nxusb_main.h"
 
+void NXUsbMain::loadButton(NxBtButtons button, const QString &resource)
+{
+    Q_ASSERT(button < BUTTON_END);
+    if(button >= BUTTON_END)
+        return;
+
+    QImage img(resource);
+    Q_ASSERT(!img.isNull());
+
+    auto &b = m_buttonStatus[button];
+
+    b.on = QPixmap::fromImage(img);
+    img.convertTo(QImage::Format_Grayscale8);
+    b.off = QPixmap::fromImage(img);
+}
 
 void NXUsbMain::closeEvent(QCloseEvent *event)
 {
@@ -54,6 +70,11 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     wIcon.addFile(":/icon/icon48.png", QSize(48, 48));
     wIcon.addFile(":/icon/icon256.png", QSize(256, 256));
     setWindowIcon(wIcon);
+
+    loadButton(BUTTON_Y, ":/buttons/y.png");
+    loadButton(BUTTON_X, ":/buttons/x.png");
+    loadButton(BUTTON_B, ":/buttons/b.png");
+    loadButton(BUTTON_A, ":/buttons/a.png");
 
     memset(&buttons, 0, sizeof(buttons));
     buttons.cmd = CMD_ButtonsUpdate;
@@ -261,3 +282,15 @@ void NXUsbMain::on_joysticks_currentIndexChanged(int index)
 {
     m_joy.selectActiveGamepad(index);
 }
+
+void NXUsbMain::on_actionQuit_triggered()
+{
+    this->close();
+}
+
+
+void NXUsbMain::on_actionAbout_triggered()
+{
+    QMessageBox::about(this, this->windowTitle(), tr("An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.\n\nAuthor - Novichkov Vitaliy Dmitriyevich."));
+}
+

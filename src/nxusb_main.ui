@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>NXUsbMain</string>
+   <string>NX-USB UART Client</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../res/nxusb.qrc">
+    <normaloff>:/icon/icon48.png</normaloff>:/icon/icon48.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,10000">
@@ -629,8 +633,32 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuDevice">
+    <property name="title">
+     <string>Device</string>
+    </property>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuDevice"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../res/nxusb.qrc"/>

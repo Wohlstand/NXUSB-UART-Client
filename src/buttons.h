@@ -60,6 +60,9 @@ enum NxBtButtons
     BUTTON_END = (BUTTON_ZR << 1)
 };
 
+// To loop through all button states:
+// for(uint32_t i = 0; i < BUTTON_END; i <<= 1)
+
 enum NXCommand
 {
     CMD_None = 0,
