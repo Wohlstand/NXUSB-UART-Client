@@ -25,9 +25,13 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
-#include <QObject>
-#include <cmath>
+#include <SDL2/SDL_stdinc.h>
 #include <stdint.h>
+#include <cmath>
+
+#include <QObject>
+#include <QByteArray>
+
 
 enum NxBtButtons
 {
@@ -167,28 +171,16 @@ struct NXStickCalibration
     float max_y;
 };
 
-// static const NXStickCalibration s_nx_calib_left = {2159.0f, 1916.0f, -1466.0f, 1517.0f, -1583.0f, 1465.0f};
-// static const NXStickCalibration s_calib_right = {2070.0f, 2013.0f, -1522.0f, 1414.0f, -1531.0f, 1510.0f};
-static const NXStickCalibration s_nx_calib_left = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
-static const NXStickCalibration s_nx_calib_right = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
+extern const NXStickCalibration s_nx_calib_left;
+extern const NXStickCalibration s_nx_calib_right;
 
-static inline void nx_axis2bin(uint16_t out[2], float ratio_x, float ratio_y, const NXStickCalibration &calib)
-{
-    float ret;
+extern void nx_axis2bin(uint16_t out[2],
+                        float ratio_x, float ratio_y,
+                        const NXStickCalibration &calib);
 
-    if(ratio_x < 0)
-        ret = std::abs(ratio_x) * calib.min_x + calib.centre_x;
-    else
-        ret = std::abs(ratio_x) * calib.max_x + calib.centre_x;
+extern void nx_decodeRumble(const QByteArray &rumbleData,
+                         size_t half,
+                         Uint16 *low_freq_rumble,
+                         Uint16 *high_freq_rumble);
 
-    out[0] = (int)std::round(ret);
-
-    if(ratio_y < 0)
-        ret = std::abs(ratio_y) * calib.min_y + calib.centre_y;
-    else
-        ret = std::abs(ratio_y) * calib.max_y + calib.centre_y;
-
-    out[1] = (int)std::round(ret);
-}
-
-#endif // BUTTONS_H
+#endif // static

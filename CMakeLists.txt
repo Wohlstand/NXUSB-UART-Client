@@ -15,6 +15,7 @@ find_package(SDL2 REQUIRED)
 
 set(PROJECT_SOURCES
     src/buttons.h
+    src/buttons.cpp
     src/main.cpp
     src/nxusb_main.cpp
     src/nxusb_main.h
@@ -27,6 +28,8 @@ set(PROJECT_SOURCES
     src/nxleds_widget.cpp
     src/gamepad_widget.h
     src/gamepad_widget.cpp
+    src/vibro_widget.h
+    src/vibro_widget.cpp
 
     # Resources
     res/nxusb.qrc

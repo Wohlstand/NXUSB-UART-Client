@@ -83,12 +83,10 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     }, Qt::QueuedConnection);
 
     QObject::connect(&m_serial, &NXSerial::vibroEnabled, &m_joy, &JoyHandler::setVibro, Qt::QueuedConnection);
-    QObject::connect(&m_serial, &NXSerial::vibroEnabled, &m_joy, [this](bool en)->void
-    {
-        ui->stateVibro->setChecked(en);
-    }, Qt::QueuedConnection);
+    QObject::connect(&m_serial, &NXSerial::vibroEnabled, ui->vibro, &VibroWidget::setVibroEnabled, Qt::QueuedConnection);
 
     QObject::connect(&m_serial, &NXSerial::rumbleData, &m_joy, &JoyHandler::playRunbleData, Qt::QueuedConnection);
+    QObject::connect(&m_serial, &NXSerial::rumbleData, ui->vibro, &VibroWidget::playRumbleData, Qt::QueuedConnection);
     QObject::connect(&m_serial, &NXSerial::playerLedsChange, ui->ledIndicator, &NXLedsWidget::setState);
 
     QObject::connect(&m_joy, &JoyHandler::debugMessage, this, [this](const QString &msg)->void
