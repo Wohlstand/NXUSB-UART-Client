@@ -37,5 +37,13 @@
         <file>buttons/tr-zr.png</file>
         <file>buttons/x.png</file>
         <file>buttons/y.png</file>
+        <file>buttons/stick-r-dl.png</file>
+        <file>buttons/stick-r-rd.png</file>
+        <file>buttons/stick-r-ur.png</file>
+        <file>buttons/stick-r-lu.png</file>
+        <file>buttons/stick-l-dl.png</file>
+        <file>buttons/stick-l-rd.png</file>
+        <file>buttons/stick-l-ur.png</file>
+        <file>buttons/stick-l-lu.png</file>
     </qresource>
 </RCC>

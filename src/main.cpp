@@ -28,8 +28,14 @@
 
 int main(int argc, char *argv[])
 {
+    QApplication::setOrganizationDomain("wohlsoft.ru");
+    QApplication::setOrganizationName("WohlSoft Team");
+    QApplication::setApplicationName("NXUSB Client");
+
     QApplication a(argc, argv);
+
     NXUsbMain w;
     w.show();
+
     return QApplication::exec();
 }

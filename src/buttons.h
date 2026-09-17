@@ -25,6 +25,8 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
+#include <QObject>
+#include <cmath>
 #include <stdint.h>
 
 enum NxBtButtons
@@ -120,5 +122,53 @@ struct __attribute__((packed)) NXSendCmd
     uint8_t tail;
 };
 
+struct NXButtonsState
+{
+    uint32_t buttons = 0;
+
+    float stick_l[2] = {0.0f, 0.0f};
+    float stick_r[2] = {0.0f, 0.0f};
+
+    float accel[3] = {0.0f, 0.0f, 0.0f};
+    float gyro[3] = {0.0f, 0.0f, 0.0f};
+
+    NXButtonsState() = default;
+    NXButtonsState(const NXButtonsState&) = default;
+};
+
+
+struct NXStickCalibration
+{
+    float centre_x;
+    float centre_y;
+    float min_x;
+    float max_x;
+    float min_y;
+    float max_y;
+};
+
+// static const NXStickCalibration s_nx_calib_left = {2159.0f, 1916.0f, -1466.0f, 1517.0f, -1583.0f, 1465.0f};
+// static const NXStickCalibration s_calib_right = {2070.0f, 2013.0f, -1522.0f, 1414.0f, -1531.0f, 1510.0f};
+static const NXStickCalibration s_nx_calib_left = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
+static const NXStickCalibration s_nx_calib_right = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
+
+static inline void nx_axis2bin(uint16_t out[2], float ratio_x, float ratio_y, const NXStickCalibration &calib)
+{
+    float ret;
+
+    if(ratio_x < 0)
+        ret = std::abs(ratio_x) * calib.min_x + calib.centre_x;
+    else
+        ret = std::abs(ratio_x) * calib.max_x + calib.centre_x;
+
+    out[0] = (int)std::round(ret);
+
+    if(ratio_y < 0)
+        ret = std::abs(ratio_y) * calib.min_y + calib.centre_y;
+    else
+        ret = std::abs(ratio_y) * calib.max_y + calib.centre_y;
+
+    out[1] = (int)std::round(ret);
+}
 
 #endif // BUTTONS_H

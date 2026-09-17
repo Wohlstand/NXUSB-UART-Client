@@ -70,7 +70,7 @@ bool NXSerial::openBus()
 void NXSerial::closeBus()
 {
     m_serialPort.close();
-    emit playerChange(0);
+    emit playerLedsChange(0x00000000);
     emit imuEnabled(false);
     emit vibroEnabled(false);
 }
@@ -88,6 +88,7 @@ bool NXSerial::write(const NXSendCmd &data)
     case CMD_Reset:
     case CMD_QueryIMU:
     case CMD_QueryPlayer:
+    case CMD_QueryConfig:
         dataSize = 2;
         break;
     }
@@ -142,8 +143,7 @@ void NXSerial::handleReadyRead()
                 }
 
                 qDebug() << "Change player" << (int)data[1];
-
-                playerChange(data[1]);
+                emit playerLedsChange(data[1]);
                 break;
             }
 
@@ -213,7 +213,7 @@ void NXSerial::handleReadyRead()
                 }
 
                 qDebug() << "Change player" << (int)data[1];
-                emit playerChange(data[1]);
+                emit playerLedsChange(data[1]);
                 qDebug() << "Change IMU" << (int)data[2];
                 emit imuEnabled(data[2]);
                 qDebug() << "Change Vibro" << (int)data[3];

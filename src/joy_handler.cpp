@@ -42,6 +42,16 @@
 //#define SDL_STANDARD_GRAVITY 9.80665
 #define GYRO_COEFF (M_PI / 180.0)
 
+static constexpr float c_accelScale = SDL_STANDARD_GRAVITY / SWITCH_ACCEL_SCALE;
+static constexpr float c_fAccelScaleX = c_accelScale;
+static constexpr float c_fAccelScaleY = c_accelScale;
+static constexpr float c_fAccelScaleZ = c_accelScale;
+
+static constexpr float c_gyroScale = M_PI / 180.0 / SWITCH_GYRO_SCALE;
+static constexpr float c_fGyroScaleX = c_gyroScale;
+static constexpr float c_fGyroScaleY = c_gyroScale;
+static constexpr float c_fGyroScaleZ = c_gyroScale;
+
 
 JoyHandler::JoyHandler(QObject *o) :
     QObject(o)
@@ -49,6 +59,11 @@ JoyHandler::JoyHandler(QObject *o) :
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     SDL_Init(SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_HAPTIC | SDL_INIT_TIMER | SDL_INIT_SENSOR);
 
+    resetState();
+}
+
+void JoyHandler::resetState()
+{
     memset(&m_buttons, 0, sizeof(NXSendCmd));
     m_buttons.cmd = CMD_ButtonsUpdate;
     m_buttons.data.state.stick_l[0] = 0x7FF;
@@ -61,20 +76,12 @@ JoyHandler::JoyHandler(QObject *o) :
     m_tilting.cmd = CMD_Tilt;
     m_tilting.tail = 0xFF;
 
+    memset(&m_state, 0, sizeof(NXButtonsState));
+    memset(&m_statePrev, 0, sizeof(NXButtonsState));
+
     m_activeGamepad = 0;
     m_imuEnabled = false;
     m_vibroEnabled = false;
-
-    float accelScale = SDL_STANDARD_GRAVITY / SWITCH_ACCEL_SCALE;
-    float gyroScale = M_PI / 180.0 / SWITCH_GYRO_SCALE;
-
-    m_fAccelScaleX = accelScale;
-    m_fAccelScaleY = accelScale;
-    m_fAccelScaleZ = accelScale;
-
-    m_fGyroScaleX = gyroScale;
-    m_fGyroScaleY = gyroScale;
-    m_fGyroScaleZ = gyroScale;
 }
 
 JoyHandler::~JoyHandler()
@@ -96,7 +103,7 @@ void JoyHandler::stop()
 
     if(m_thread)
     {
-        SDL_WaitThread(m_thread, nullptr);
+        SDL_DetachThread(m_thread);
         m_thread = nullptr;
     }
 }
@@ -181,6 +188,7 @@ void JoyHandler::runner()
             case SDL_JOYDEVICEREMOVED:
                 emit debugMessage(QString("-- Disconnecting old gamepad! Instance %1").arg(evt.jdevice.which));
                 removeJoystick(evt.jdevice.which);
+                resetState();
                 joysticksSyncList();
                 break;
             }
@@ -204,6 +212,9 @@ void JoyHandler::runner()
                 if(tilting)
                     emit sendCommand(m_tilting);
             }
+
+            if(memcmp(&m_statePrev, &m_state, sizeof(NXButtonsState)) != 0)
+                emit stateChanged(m_state);
         }
 
         QThread::msleep(1000 / 130);
@@ -213,6 +224,12 @@ void JoyHandler::runner()
         ctrlCleanUp(it);
 
     m_joysticks.clear();
+
+    resetState();
+
+    emit stateChanged(m_state);
+    emit sendCommand(m_buttons);
+    emit sendCommand(m_tilting);
 
     joysticksSyncList();
 }
@@ -235,6 +252,7 @@ void JoyHandler::ctrlCleanUp(ControllerEntry &entry)
     entry.ctrl = nullptr;
     entry.joy = nullptr;
 }
+
 
 void JoyHandler::addJoystick(int joyIdx)
 {
@@ -302,40 +320,6 @@ void JoyHandler::removeJoystick(int instance)
 }
 
 
-
-struct StickCalibration
-{
-    float centre_x;
-    float centre_y;
-    float min_x;
-    float max_x;
-    float min_y;
-    float max_y;
-};
-
-// static const StickCalibration s_calib_left = {2159.0f, 1916.0f, -1466.0f, 1517.0f, -1583.0f, 1465.0f};
-// static const StickCalibration s_calib_right = {2070.0f, 2013.0f, -1522.0f, 1414.0f, -1531.0f, 1510.0f};
-static const StickCalibration s_calib_left = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
-static const StickCalibration s_calib_right = {2047.0f, 2047.0f, -2047.0f, 2047.0f, -2047.0f, 2047.0f};
-
-static void axis2bin(uint16_t out[2], float ratio_x, float ratio_y, const StickCalibration &calib)
-{
-    float ret;
-
-    if(ratio_x < 0)
-        ret = SDL_fabsf(ratio_x) * calib.min_x + calib.centre_x;
-    else
-        ret = SDL_fabsf(ratio_x) * calib.max_x + calib.centre_x;
-
-    out[0] = (int)SDL_round(ret);
-
-    if(ratio_y < 0)
-        ret = SDL_fabsf(ratio_y) * calib.min_y + calib.centre_y;
-    else
-        ret = SDL_fabsf(ratio_y) * calib.max_y + calib.centre_y;
-
-    out[1] = (int)SDL_round(ret);
-}
 
 static inline float processAxis(SDL_GameController *ctrl, SDL_GameControllerAxis axe)
 {
@@ -496,6 +480,7 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     NXSendCmd bOld, tOld;
     memcpy(&bOld, &m_buttons, sizeof(NXSendCmd));
     memcpy(&tOld, &m_tilting, sizeof(NXSendCmd));
+    memcpy(&m_statePrev, &m_state, sizeof(NXSendCmd));
 
     *buttons = false;
     *tilting = false;
@@ -507,16 +492,16 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     float axis_r_x_val = processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_RIGHTX);
     float axis_r_y_val = -processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_RIGHTY);
 
-    axis_l_x_val = filterDead(axis_l_x_val, axis_l_x_val, axis_l_y_val);
-    axis_l_y_val = filterDead(axis_l_y_val, axis_l_x_val, axis_l_y_val);
-    axis_r_x_val = filterDead(axis_r_x_val, axis_r_x_val, axis_r_y_val);
-    axis_r_y_val = filterDead(axis_r_y_val, axis_r_x_val, axis_r_y_val);
+    m_state.stick_l[0] = axis_l_x_val = filterDead(axis_l_x_val, axis_l_x_val, axis_l_y_val);
+    m_state.stick_l[1] = axis_l_y_val = filterDead(axis_l_y_val, axis_l_x_val, axis_l_y_val);
+    m_state.stick_r[0] = axis_r_x_val = filterDead(axis_r_x_val, axis_r_x_val, axis_r_y_val);
+    m_state.stick_r[1] = axis_r_y_val = filterDead(axis_r_y_val, axis_r_x_val, axis_r_y_val);
 
-    axis2bin(tmp, axis_l_x_val, axis_l_y_val, s_calib_left);
+    nx_axis2bin(tmp, axis_l_x_val, axis_l_y_val, s_nx_calib_left);
     m_buttons.data.state.stick_l[0] = tmp[0];
     m_buttons.data.state.stick_l[1] = tmp[1];
 
-    axis2bin(tmp, axis_r_x_val, axis_r_y_val, s_calib_right);
+    nx_axis2bin(tmp, axis_r_x_val, axis_r_y_val, s_nx_calib_right);
     m_buttons.data.state.stick_r[0] = tmp[0];
     m_buttons.data.state.stick_r[1] = tmp[1];
 
@@ -547,32 +532,36 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     if(memcmp(&m_buttons.data.state, &bOld.data.state, sizeof(m_buttons.data.state)) != 0)
         *buttons = true;
 
+    m_state.buttons = m_buttons.data.state.buttons;
+
     if(m_imuEnabled)
     {
         // Read tilting state if available
         if(entry.has_gyro)
-        {
-            float gyro[3];
-            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_GYRO, gyro, 3);
-
-            m_tilting.data.tilt.gyro[0] = -(int16_t)(gyro[2] / m_fGyroScaleX);
-            m_tilting.data.tilt.gyro[1] = -(int16_t)(gyro[0] / m_fGyroScaleY);
-            m_tilting.data.tilt.gyro[2] = (int16_t)(gyro[1] / m_fGyroScaleZ);
-        }
+            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_GYRO, m_state.gyro, 3);
+        else
+            memset(m_state.gyro, 0, sizeof(float) * 3);
 
         if(entry.has_accel)
-        {
-            float accel[3];
-            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_ACCEL, accel, 3);
-
-            m_tilting.data.tilt.accel[0] = -(int16_t)(accel[2] / m_fAccelScaleX);
-            m_tilting.data.tilt.accel[1] = -(int16_t)(accel[0] / m_fAccelScaleY);
-            m_tilting.data.tilt.accel[2] = (int16_t)(accel[1] / m_fAccelScaleZ);
-        }
-
-        if(memcmp(&m_tilting.data.tilt, &tOld.data.tilt, sizeof(m_tilting.data.tilt)) != 0)
-            *tilting = true;
+            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_ACCEL, m_state.accel, 3);
+        else
+            memset(m_state.accel, 0, sizeof(float) * 3);
     }
+    else
+    {
+        memset(m_state.gyro, 0, sizeof(float) * 3);
+        memset(m_state.accel, 0, sizeof(float) * 3);
+    }
+
+    m_tilting.data.tilt.gyro[0] = -(int16_t)(m_state.gyro[2] / c_fGyroScaleX);
+    m_tilting.data.tilt.gyro[1] = -(int16_t)(m_state.gyro[0] / c_fGyroScaleY);
+    m_tilting.data.tilt.gyro[2] = (int16_t)(m_state.gyro[1] / c_fGyroScaleZ);
+    m_tilting.data.tilt.accel[0] = -(int16_t)(m_state.accel[2] / c_fAccelScaleX);
+    m_tilting.data.tilt.accel[1] = -(int16_t)(m_state.accel[0] / c_fAccelScaleY);
+    m_tilting.data.tilt.accel[2] = (int16_t)(m_state.accel[1] / c_fAccelScaleZ);
+
+    if(memcmp(&m_tilting.data.tilt, &tOld.data.tilt, sizeof(m_tilting.data.tilt)) != 0)
+        *tilting = true;
 
     // Run rumble
     m_rumbleMutex.lock();

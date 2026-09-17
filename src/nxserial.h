@@ -58,7 +58,7 @@ private slots:
 signals:
     void debugMessage(const QString &message);
     void errorMessage(const QString &message);
-    void playerChange(int player);
+    void playerLedsChange(uint8_t mask);
     void imuEnabled(bool imuEn);
     void rumbleData(QByteArray data);
     void imuSensitivityData(const QByteArray &data);

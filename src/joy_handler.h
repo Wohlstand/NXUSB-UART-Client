@@ -67,6 +67,7 @@ public:
 signals:
     void debugMessage(const QString &msg);
     void sendCommand(const NXSendCmd &cmd);
+    void stateChanged(NXButtonsState state);
     void joysticksListUpdated();
     void startThread();
 
@@ -82,16 +83,10 @@ private:
     QByteArray m_rumble;
     QMutex m_rumbleMutex;
 
+    NXButtonsState m_state;
+    NXButtonsState m_statePrev;
     NXSendCmd m_buttons;
     NXSendCmd m_tilting;
-
-    float m_fAccelScaleX;
-    float m_fAccelScaleY;
-    float m_fAccelScaleZ;
-
-    float m_fGyroScaleX;
-    float m_fGyroScaleY;
-    float m_fGyroScaleZ;
 
     struct ControllerEntry
     {
@@ -105,6 +100,8 @@ private:
     };
 
     static void ctrlCleanUp(ControllerEntry &entry);
+
+    void resetState();
 
     void addJoystick(int joyIdx);
     void removeJoystick(int instance);

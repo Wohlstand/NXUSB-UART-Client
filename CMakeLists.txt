@@ -23,6 +23,10 @@ set(PROJECT_SOURCES
     src/nxserial.cpp
     src/joy_handler.h
     src/joy_handler.cpp
+    src/nxleds_widget.h
+    src/nxleds_widget.cpp
+    src/gamepad_widget.h
+    src/gamepad_widget.cpp
 
     # Resources
     res/nxusb.qrc
@@ -51,6 +55,7 @@ else()
     endif()
 endif()
 
+target_include_directories(nxusb-client PRIVATE src)
 target_link_libraries(nxusb-client PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::SerialPort)
 
 if(TARGET SDL2::SDL2)

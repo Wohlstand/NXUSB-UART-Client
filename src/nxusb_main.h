@@ -27,6 +27,7 @@
 
 #include <QMainWindow>
 #include <QMap>
+#include <QSettings>
 
 #include "nxserial.h"
 #include "joy_handler.h"
@@ -39,22 +40,11 @@ class NXUsbMain : public QMainWindow
 {
     Q_OBJECT
 
+    QSettings m_settings;
     NXSerial m_serial;
     JoyHandler m_joy;
 
-    NXSendCmd buttons;
-    NXSendCmd tilt;
     NXSendCmd cmd;
-
-    struct ButtonStatus
-    {
-        QPixmap off;
-        QPixmap on;
-    };
-
-    QMap<NxBtButtons, ButtonStatus> m_buttonStatus;
-
-    void loadButton(NxBtButtons button, const QString &resource);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -80,6 +70,8 @@ private slots:
     void on_actionQuit_triggered();
 
     void on_actionAbout_triggered();
+
+    void on_serialPort_editingFinished();
 
 private:
     Ui::NXUsbMain *ui;
