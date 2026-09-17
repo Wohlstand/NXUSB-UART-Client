@@ -49,7 +49,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     ui->setupUi(this);
 
     qRegisterMetaType<NXButtonsState>("NXButtonsState");
-    qRegisterMetaType<NXSendCmd>("NXSendCmd");
+    qRegisterMetaType<NXSendCmdQ>("NXSendCmdQ");
 
     m_settings.beginGroup("setup");
     ui->serialPort->setText(m_settings.value("serial-port", "/dev/ttyUSB0").toString());
@@ -98,7 +98,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 
     QObject::connect(&m_joy, &JoyHandler::stateChanged, ui->gamepad, &GamepadWidget::updateState, Qt::QueuedConnection);
     QObject::connect(&m_joy, &JoyHandler::sendCommand, &m_serial, &NXSerial::write, Qt::BlockingQueuedConnection);
-    QObject::connect(ui->gamepad, &GamepadWidget::sendCommand, &m_serial, &NXSerial::write, Qt::QueuedConnection);
+    QObject::connect(ui->gamepad, &GamepadWidget::sendCommand, &m_serial, &NXSerial::writeQ, Qt::QueuedConnection);
 
     QObject::connect(&m_joy, &JoyHandler::joysticksListUpdated, this, [this](void)->void
     {

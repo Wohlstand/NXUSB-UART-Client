@@ -75,6 +75,11 @@ void NXSerial::closeBus()
     emit vibroEnabled(false);
 }
 
+bool NXSerial::writeQ(NXSendCmdQ data)
+{
+    return write(data.data);
+}
+
 bool NXSerial::write(const NXSendCmd &data)
 {
     if(!m_serialPort.isOpen())
@@ -88,6 +93,7 @@ bool NXSerial::write(const NXSendCmd &data)
     case CMD_Reset:
     case CMD_QueryIMU:
     case CMD_QueryPlayer:
+    case CMD_QueryVibro:
     case CMD_QueryConfig:
         dataSize = 2;
         break;

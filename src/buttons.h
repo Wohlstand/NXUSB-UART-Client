@@ -122,6 +122,26 @@ struct __attribute__((packed)) NXSendCmd
     uint8_t tail;
 };
 
+struct NXSendCmdQ
+{
+    NXSendCmd data;
+
+    NXSendCmdQ()
+    {
+        memset(&data, 0, sizeof(NXSendCmd));
+    };
+
+    explicit NXSendCmdQ(const NXSendCmd &d)
+    {
+        memcpy(&data, &d, sizeof(NXSendCmd));
+    };
+
+    NXSendCmdQ(const NXSendCmdQ &o)
+    {
+        memcpy(&data, &o.data, sizeof(NXSendCmd));
+    };
+};
+
 struct NXButtonsState
 {
     uint32_t buttons = 0;

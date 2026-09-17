@@ -113,7 +113,7 @@ public slots:
     void updateState(NXButtonsState state);
 
 signals:
-    void sendCommand(const NXSendCmd &cmd);
+    void sendCommand(NXSendCmdQ cmd);
 };
 
 #endif // GAMEPAD_WIDGET_H

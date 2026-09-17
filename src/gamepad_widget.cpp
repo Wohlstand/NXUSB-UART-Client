@@ -438,7 +438,6 @@ void GamepadWidget::drawCube(QPoint offset, QPainter *p, float *accel, float *gy
 
 bool GamepadWidget::collideButton(QPoint offset, QPoint mouse, uint32_t b)
 {
-    bool pressed = (m_state.buttons & b) != 0;
     int size_w = 10 * c_size_scale;
     int size_h = 10 * c_size_scale;
     QRect dst(offset.x() - size_w / 2, offset.y() - size_h / 2, size_w, size_h);
@@ -558,7 +557,7 @@ void GamepadWidget::mousePressEvent(QMouseEvent *evt)
             {
                 m_mouseButtons.data.state.buttons |= b;
                 m_state.buttons |= b;
-                emit sendCommand(m_mouseButtons);
+                emit sendCommand(NXSendCmdQ(m_mouseButtons));
                 repaint();
             }
             break;
@@ -599,7 +598,7 @@ void GamepadWidget::mousePressEvent(QMouseEvent *evt)
                     }
                 }
 
-                emit sendCommand(m_mouseButtons);
+                emit sendCommand(NXSendCmdQ(m_mouseButtons));
                 repaint();
             }
 
@@ -611,7 +610,7 @@ void GamepadWidget::mousePressEvent(QMouseEvent *evt)
             {
                 m_mouseButtons.data.state.buttons |= BUTTON_L | BUTTON_R;
                 m_state.buttons |= BUTTON_L | BUTTON_R;
-                emit sendCommand(m_mouseButtons);
+                emit sendCommand(NXSendCmdQ(m_mouseButtons));
                 repaint();
             }
             break;
@@ -621,7 +620,7 @@ void GamepadWidget::mousePressEvent(QMouseEvent *evt)
             {
                 m_mouseButtons.data.state.buttons |= it.value();
                 m_state.buttons |= it.value();
-                emit sendCommand(m_mouseButtons);
+                emit sendCommand(NXSendCmdQ(m_mouseButtons));
                 repaint();
             }
             break;
@@ -656,7 +655,7 @@ void GamepadWidget::mouseReleaseEvent(QMouseEvent *evt)
             m_mouseButtons.data.state.stick_l[1] = 0x7FF;
             m_mouseButtons.data.state.stick_r[0] = 0x7FF;
             m_mouseButtons.data.state.stick_r[1] = 0x7FF;
-            emit sendCommand(m_mouseButtons);
+            emit sendCommand(NXSendCmdQ(m_mouseButtons));
             repaint();
         }
     }

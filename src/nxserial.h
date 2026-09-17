@@ -49,6 +49,7 @@ public:
     bool openBus();
     void closeBus();
 
+    bool writeQ(NXSendCmdQ data);
     bool write(const NXSendCmd &data);
 
 private slots:
