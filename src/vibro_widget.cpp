@@ -82,7 +82,9 @@ void VibroWidget::paintEvent(QPaintEvent *)
 
         for(int i = 1; i < r.width(); ++i)
         {
-            float y = SDL_sinf(i + m_iterator) * ((float)m_rumble_l[0] / 65535.0f) * ((r.height() / 2)  - 2) + (r.height() / 2);
+            float rh = ((float)m_rumble_l[0] / 65535.0f);
+            float rl = ((float)m_rumble_h[0] / 65535.0f);
+            float y = SDL_sinf(i + m_iterator) * (rh * rl / 2.0f) * ((r.height() / 2)  - 2) + (r.height() / 2);
             QPoint cur(i, y);
 
             if(i == 1)
@@ -95,7 +97,9 @@ void VibroWidget::paintEvent(QPaintEvent *)
         p.setPen(QPen(Qt::red, 1));
         for(int i = 1; i < r.width(); ++i)
         {
-            float y = SDL_sinf(i + m_iterator) * ((float)m_rumble_l[1] / 65535.0f) * ((r.height() / 2)  - 2) + (r.height() / 2);
+            float rh = ((float)m_rumble_l[1] / 65535.0f);
+            float rl = ((float)m_rumble_h[1] / 65535.0f);
+            float y = SDL_sinf(i + m_iterator) * (rh * rl / 2.0f) * ((r.height() / 2)  - 2) + (r.height() / 2);
             QPoint cur(i, y);
 
             if(i == 1)
@@ -115,7 +119,10 @@ void VibroWidget::playRumbleData(QByteArray data)
     {
         nx_decodeRumble(data, 0, &m_rumble_l[0], &m_rumble_h[0]);
         nx_decodeRumble(data, 1, &m_rumble_l[1], &m_rumble_h[1]);
-        // qDebug() << m_rumble_l[0] << m_rumble_h[0] << m_rumble_l[1] << m_rumble_h[1];
+
+        if(m_rumble_l[0] != 0 || m_rumble_l[1] != 0 || m_rumble_h[0] != 0 || m_rumble_h[1] != 0)
+            qDebug() << m_rumble_l[0] << m_rumble_h[0] << m_rumble_l[1] << m_rumble_h[1];
+
         repaint();
     }
 }
