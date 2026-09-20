@@ -63,6 +63,7 @@ public:
     int numJoysticks();
 
     void selectActiveGamepad(int index);
+    void playTestRumble(uint16_t low, uint16_t high, uint16_t duration);
 
 signals:
     void debugMessage(const QString &msg);
@@ -78,6 +79,11 @@ private:
     QAtomicInteger<bool> m_imuEnabled;
     QAtomicInteger<bool> m_vibroEnabled;
     QAtomicInteger<int> m_activeGamepad;
+
+    QAtomicInteger<bool> m_testVibro;
+    QAtomicInteger<uint16_t> m_testVibroLow;
+    QAtomicInteger<uint16_t> m_testVibroHigh;
+    QAtomicInteger<uint16_t> m_testVibroDuration;
     SDL_Thread *m_thread = nullptr;
 
     QByteArray m_rumble;

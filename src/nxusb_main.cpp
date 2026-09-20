@@ -48,6 +48,8 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->vibro->setContextMenuPolicy(Qt::CustomContextMenu);
+
     qRegisterMetaType<NXButtonsState>("NXButtonsState");
     qRegisterMetaType<NXSendCmdQ>("NXSendCmdQ");
 
@@ -88,6 +90,8 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     QObject::connect(&m_serial, &NXSerial::rumbleData, &m_joy, &JoyHandler::playRunbleData, Qt::QueuedConnection);
     QObject::connect(&m_serial, &NXSerial::rumbleData, ui->vibro, &VibroWidget::playRumbleData, Qt::QueuedConnection);
     QObject::connect(&m_serial, &NXSerial::playerLedsChange, ui->ledIndicator, &NXLedsWidget::setState);
+
+    QObject::connect(ui->vibro, &VibroWidget::playTestRumble, &m_joy, &JoyHandler::playTestRumble, Qt::QueuedConnection);
 
     QObject::connect(&m_joy, &JoyHandler::debugMessage, this, [this](const QString &msg)->void
     {

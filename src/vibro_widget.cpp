@@ -24,6 +24,8 @@
 
 #include <QPaintEvent>
 #include <QPainter>
+#include <QMenu>
+#include <QContextMenuEvent>
 #include <QtDebug>
 #include "buttons.h"
 #include "vibro_widget.h"
@@ -34,6 +36,7 @@ VibroWidget::VibroWidget(QWidget *parent)
 {
     QObject::connect(&m_timer, &QTimer::timeout, this, &VibroWidget::refresh);
     m_timer.start(30);
+    QObject::connect(this, &QWidget::customContextMenuRequested, this, &VibroWidget::openContextMenu);
 }
 
 VibroWidget::~VibroWidget()
@@ -113,6 +116,40 @@ void VibroWidget::paintEvent(QPaintEvent *)
     p.end();
 }
 
+void VibroWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    openContextMenu(event->pos());
+}
+
+void VibroWidget::openContextMenu(const QPoint &p)
+{
+    QMenu menu;
+
+    QAction *v1 = menu.addAction("Quiet short vibro test");
+    QAction *v2 = menu.addAction("Quiet long vibro test");
+
+    QAction *v3 = menu.addAction("Loud short vibro test");
+    QAction *v4 = menu.addAction("Loud long vibro test");
+
+    QAction *v5 = menu.addAction("Both short vibro test");
+    QAction *v6 = menu.addAction("Both long vibro test");
+
+    QAction *reply = menu.exec(mapToGlobal(p));
+
+    if(reply == v1)
+        emit playTestRumble(10000, 0, 25);
+    else if(reply == v2)
+        emit playTestRumble(10000, 0, 1000);
+    else if(reply == v3)
+        emit playTestRumble(0, 65500, 25);
+    else if(reply == v4)
+        emit playTestRumble(0, 65500, 1000);
+    else if(reply == v5)
+        emit playTestRumble(10000, 65500, 25);
+    else if(reply == v6)
+        emit playTestRumble(10000, 65500, 1000);
+}
+
 void VibroWidget::playRumbleData(QByteArray data)
 {
     if(!data.isEmpty())
@@ -130,6 +167,7 @@ void VibroWidget::playRumbleData(QByteArray data)
 void VibroWidget::setVibroEnabled(bool en)
 {
     m_vibroEnabled = en;
+    setContextMenuPolicy(Qt::CustomContextMenu);
     repaint();
 }
 

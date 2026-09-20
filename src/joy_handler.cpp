@@ -57,6 +57,7 @@ JoyHandler::JoyHandler(QObject *o) :
     QObject(o)
 {
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
     SDL_Init(SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_HAPTIC | SDL_INIT_TIMER | SDL_INIT_SENSOR);
 
     resetState();
@@ -150,6 +151,14 @@ int JoyHandler::numJoysticks()
 void JoyHandler::selectActiveGamepad(int index)
 {
     m_activeGamepad = index;
+}
+
+void JoyHandler::playTestRumble(uint16_t low, uint16_t high, uint16_t duration)
+{
+    m_testVibroLow = low;
+    m_testVibroHigh = high;
+    m_testVibroDuration = duration;
+    m_testVibro = true;
 }
 
 void JoyHandler::runner()
@@ -363,7 +372,7 @@ static inline float filterDead(float in, float  x, float y)
 
 bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *tilting)
 {
-    uint16_t tmp[2], rumble_l = 0, rumble_h = 0;
+    uint16_t tmp[2], rumble_ll = 0, rumble_lh = 0, rumble_rl = 0, rumble_rh = 0;
     NXSendCmd bOld, tOld;
     memcpy(&bOld, &m_buttons, sizeof(NXSendCmd));
     memcpy(&tOld, &m_tilting, sizeof(NXSendCmd));
@@ -457,14 +466,22 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
         auto data = m_rumble;
         m_rumble.clear();
 
-        nx_decodeRumble(data, 0, &rumble_l, &rumble_h);
+        nx_decodeRumble(data, 0, &rumble_ll, &rumble_lh);
+        nx_decodeRumble(data, 1, &rumble_rl, &rumble_rh);
+#ifdef DEBUG_BUILD
+        if(rumble_ll || rumble_lh || rumble_rl || rumble_rh)
+            qDebug() << "Rumble:" << rumble_ll << rumble_lh << rumble_rl << rumble_rh;
+#endif
 
-        if(rumble_l || rumble_h)
-            qDebug() << "Rumble:" << rumble_l << rumble_h;
-
-        SDL_GameControllerRumble(entry.ctrl, rumble_l, rumble_h, 17);
+        SDL_GameControllerRumble(entry.ctrl, SDL_max(rumble_ll, rumble_rl), SDL_max(rumble_lh, rumble_rh), 300);
     }
     m_rumbleMutex.unlock();
+
+    if(m_testVibro)
+    {
+        SDL_GameControllerRumble(entry.ctrl, m_testVibroLow, m_testVibroHigh, m_testVibroDuration);
+        m_testVibro = false;
+    }
 
     return *tilting || *buttons;
 }

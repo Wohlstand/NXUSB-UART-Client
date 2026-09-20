@@ -113,7 +113,7 @@ void NXSerial::handleReadyRead()
 
     m_readData.append(inData);
 
-    // qDebug() << "TRACE: " << inData;
+    // qDebug() << "TRACE: " << QString::fromUtf8(inData.toHex(','));
 
     while((tail = m_readData.indexOf(0x7F)) >= 0)
     {
@@ -136,7 +136,7 @@ void NXSerial::handleReadyRead()
             {
                 QString debug = QString::fromUtf8(data.mid(1, -1).toHex(','));
                 qDebug() << "Invalid reply: " << data[0] << "Value:" << debug;
-                emit debugMessage(debug);
+                emit debugMessage(QString("Invalid reply: %1").arg(debug));
                 break;
             }
 
@@ -183,9 +183,15 @@ void NXSerial::handleReadyRead()
             case 'r': // Rumble data
             {
                 auto rumble = data.mid(1, -1);
+
+                static unsigned int counter = 0;
+
+#ifdef DEBUG_BUILD
                 // Print everything but neutral
                 if(rumble.size() != 8 || memcmp(rumble.data(), c_rumbleNeutral, 8) != 0)
-                    qDebug() << "Rumble data" << QString::fromUtf8(rumble.toHex(','));
+                    qDebug() << "Rumble data" << counter++ << QString::fromUtf8(rumble.toHex(','));
+#endif
+
                 emit rumbleData(rumble);
                 break;
             }

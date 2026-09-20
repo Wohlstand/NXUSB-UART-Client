@@ -135,7 +135,7 @@ static Uint16 decodeRumbleLow(Uint16 amp)
             return c_rumbler_lfa[index][0];
     }
 
-    return c_rumbler_lfa[100][0];
+    return c_rumbler_lfa[0][0];
 }
 
 

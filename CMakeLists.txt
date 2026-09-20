@@ -35,6 +35,8 @@ set(PROJECT_SOURCES
     res/nxusb.qrc
 )
 
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(nxusb-client
         MANUAL_FINALIZATION
@@ -56,6 +58,10 @@ else()
             ${PROJECT_SOURCES}
         )
     endif()
+endif()
+
+if(CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+    target_compile_definitions(nxusb-client PRIVATE -DDEBUG_BUILD)
 endif()
 
 target_include_directories(nxusb-client PRIVATE src)

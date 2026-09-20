@@ -47,6 +47,9 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+private:
+    void openContextMenu(const QPoint &p);
 
 public slots:
     void playRumbleData(QByteArray data);
@@ -54,6 +57,9 @@ public slots:
 
 private slots:
     void refresh();
+
+signals:
+    void playTestRumble(uint16_t low, uint16_t high, uint16_t duration);
 };
 
 #endif // VIBRO_WIDGET_H
