@@ -60,18 +60,16 @@ private slots:
     void on_clearLog_clicked();
 
     void on_cmdReset_clicked();
-
     void on_cmdPing_clicked();
-
     void on_querySetup_clicked();
 
     void on_joysticks_currentIndexChanged(int index);
 
     void on_actionQuit_triggered();
-
     void on_actionAbout_triggered();
 
     void on_serialPort_editingFinished();
+
 
 private:
     Ui::NXUsbMain *ui;

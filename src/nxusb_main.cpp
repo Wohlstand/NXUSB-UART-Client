@@ -55,6 +55,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 
     m_settings.beginGroup("setup");
     ui->serialPort->setText(m_settings.value("serial-port", "/dev/ttyUSB0").toString());
+    ui->vibroLevel->setValue(m_settings.value("vibro-level", 100).toInt());
     m_settings.endGroup();
 
     QIcon wIcon;
@@ -92,11 +93,20 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     QObject::connect(&m_serial, &NXSerial::playerLedsChange, ui->ledIndicator, &NXLedsWidget::setState);
 
     QObject::connect(ui->vibro, &VibroWidget::playTestRumble, &m_joy, &JoyHandler::playTestRumble, Qt::QueuedConnection);
+    QObject::connect(ui->cmdSendReport, &QPushButton::clicked, &m_joy, &JoyHandler::requestSend);
 
     QObject::connect(&m_joy, &JoyHandler::debugMessage, this, [this](const QString &msg)->void
     {
         logAppend("DEBUG: " + msg.trimmed().remove('\n').remove('\r'));
     }, Qt::QueuedConnection);
+
+    QObject::connect(ui->vibroLevel, &QDial::valueChanged, &m_joy, &JoyHandler::changeVibroLevel);
+    QObject::connect(ui->vibroLevel, &QDial::valueChanged, this, [this]()->void
+    {
+        m_settings.beginGroup("setup");
+        m_settings.setValue("vibro-level", ui->vibroLevel->value());
+        m_settings.endGroup();
+    });
 
     QObject::connect(&m_joy, &JoyHandler::stateChanged, ui->gamepad, &GamepadWidget::updateState, Qt::QueuedConnection);
     QObject::connect(&m_joy, &JoyHandler::sendCommand, &m_serial, &NXSerial::write, Qt::BlockingQueuedConnection);
@@ -111,6 +121,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 
 NXUsbMain::~NXUsbMain()
 {
+    m_settings.sync();
     delete ui;
 }
 

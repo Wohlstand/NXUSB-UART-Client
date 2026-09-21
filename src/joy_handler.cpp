@@ -83,6 +83,8 @@ void JoyHandler::resetState()
     m_activeGamepad = 0;
     m_imuEnabled = false;
     m_vibroEnabled = false;
+    m_sendRequest = false;
+    m_vibroLevel = 100;
 }
 
 JoyHandler::~JoyHandler()
@@ -155,10 +157,26 @@ void JoyHandler::selectActiveGamepad(int index)
 
 void JoyHandler::playTestRumble(uint16_t low, uint16_t high, uint16_t duration)
 {
+    if(!m_running)
+        return;
+
     m_testVibroLow = low;
     m_testVibroHigh = high;
     m_testVibroDuration = duration;
     m_testVibro = true;
+}
+
+void JoyHandler::requestSend()
+{
+    if(!m_running)
+        return;
+
+    m_sendRequest = true;
+}
+
+void JoyHandler::changeVibroLevel(int level)
+{
+    m_vibroLevel = (uint16_t)level;
 }
 
 void JoyHandler::runner()
@@ -226,6 +244,13 @@ void JoyHandler::runner()
                     emit sendCommand(m_tilting);
             }
 
+            if(m_sendRequest)
+            {
+                emit sendCommand(m_buttons);
+                emit sendCommand(m_tilting);
+                m_sendRequest = false;
+            }
+
             if(memcmp(&m_statePrev, &m_state, sizeof(NXButtonsState)) != 0)
                 emit stateChanged(m_state);
         }
@@ -255,6 +280,11 @@ int JoyHandler::runner_s(void *data)
     JoyHandler *self = reinterpret_cast<JoyHandler*>(data);
     self->runner();
     return 0;
+}
+
+uint16_t JoyHandler::applyVibroLevel(uint16_t vibro)
+{
+    return (uint16_t)((m_vibroLevel / 100.f) * vibro);
 }
 
 void JoyHandler::ctrlCleanUp(ControllerEntry &entry)
@@ -480,13 +510,19 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
             qDebug() << "Rumble:" << rumble_ll << rumble_lh << rumble_rl << rumble_rh;
 #endif
 
-        SDL_GameControllerRumble(entry.ctrl, SDL_max(rumble_ll, rumble_rl), SDL_max(rumble_lh, rumble_rh), 300);
+        SDL_GameControllerRumble(entry.ctrl,
+                                 applyVibroLevel(SDL_max(rumble_ll, rumble_rl)),
+                                 applyVibroLevel(SDL_max(rumble_lh, rumble_rh)),
+                                 300);
     }
     m_rumbleMutex.unlock();
 
     if(m_testVibro)
     {
-        SDL_GameControllerRumble(entry.ctrl, m_testVibroLow, m_testVibroHigh, m_testVibroDuration);
+        SDL_GameControllerRumble(entry.ctrl,
+                                 applyVibroLevel(m_testVibroLow),
+                                 applyVibroLevel(m_testVibroHigh),
+                                 m_testVibroDuration);
         m_testVibro = false;
     }
 

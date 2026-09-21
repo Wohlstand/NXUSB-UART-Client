@@ -65,6 +65,9 @@ public:
     void selectActiveGamepad(int index);
     void playTestRumble(uint16_t low, uint16_t high, uint16_t duration);
 
+    void requestSend();
+    void changeVibroLevel(int level);
+
 signals:
     void debugMessage(const QString &msg);
     void sendCommand(const NXSendCmd &cmd);
@@ -79,11 +82,13 @@ private:
     QAtomicInteger<bool> m_imuEnabled;
     QAtomicInteger<bool> m_vibroEnabled;
     QAtomicInteger<int> m_activeGamepad;
+    QAtomicInteger<bool> m_sendRequest;
 
     QAtomicInteger<bool> m_testVibro;
     QAtomicInteger<uint16_t> m_testVibroLow;
     QAtomicInteger<uint16_t> m_testVibroHigh;
     QAtomicInteger<uint16_t> m_testVibroDuration;
+    QAtomicInteger<uint16_t> m_vibroLevel;
     SDL_Thread *m_thread = nullptr;
 
     QByteArray m_rumble;
@@ -104,6 +109,8 @@ private:
         bool has_accel = false;
         bool has_rumble = false;
     };
+
+    uint16_t applyVibroLevel(uint16_t vibro);
 
     static void ctrlCleanUp(ControllerEntry &entry);
 
