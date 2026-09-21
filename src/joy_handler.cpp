@@ -166,6 +166,8 @@ void JoyHandler::runner()
     m_running = true;
 
     SDL_Event evt;
+    Uint32 ticks_prev, ticks_cur;
+    const Uint32 wait_delay = 1000 / 125;
 
     SDL_JoystickEventState(SDL_ENABLE);
 
@@ -180,6 +182,8 @@ void JoyHandler::runner()
     // Start the watching
     while(m_running)
     {
+        ticks_prev = SDL_GetTicks();
+
         while(SDL_PollEvent(&evt))
         {
             switch(evt.type)
@@ -226,7 +230,10 @@ void JoyHandler::runner()
                 emit stateChanged(m_state);
         }
 
-        QThread::msleep(1000 / 130);
+        ticks_cur = SDL_GetTicks();
+
+        if(ticks_cur - ticks_prev < wait_delay)
+            SDL_Delay(wait_delay - (ticks_cur - ticks_prev));
     }
 
     for(ControllerEntry &it : m_joysticks)

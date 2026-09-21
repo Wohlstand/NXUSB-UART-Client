@@ -33,9 +33,10 @@ NXSerial::NXSerial(QObject *parent)
 {
     m_serialPort.setBaudRate(QSerialPort::Baud115200);
     m_serialPort.setDataBits(QSerialPort::Data8);
-    m_serialPort.setStopBits(QSerialPort::OneStop);
+    m_serialPort.setStopBits(QSerialPort::TwoStop);
     m_serialPort.setParity(QSerialPort::NoParity);
-    // m_serialPort.setReadBufferSize(3);
+    m_serialPort.setFlowControl(QSerialPort::NoFlowControl);
+    m_serialPort.setReadBufferSize(256);
 
     QObject::connect(&m_serialPort, &QSerialPort::readyRead, this, &NXSerial::handleReadyRead);
     QObject::connect(&m_serialPort, &QSerialPort::errorOccurred, this, &NXSerial::handleError);
