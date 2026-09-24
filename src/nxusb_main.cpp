@@ -56,6 +56,7 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     m_settings.beginGroup("setup");
     ui->serialPort->setText(m_settings.value("serial-port", "/dev/ttyUSB0").toString());
     ui->vibroLevel->setValue(m_settings.value("vibro-level", 100).toInt());
+    m_joy.changeVibroLevel(ui->vibroLevel->value());
     m_settings.endGroup();
 
     QIcon wIcon;
