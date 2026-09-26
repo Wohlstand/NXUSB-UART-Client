@@ -26,7 +26,6 @@
 #include <QTextCursor>
 #include <QCloseEvent>
 #include <QMessageBox>
-#include <QColorTransform>
 #include <QSerialPortInfo>
 #include <QtDebug>
 #include <QIcon>
