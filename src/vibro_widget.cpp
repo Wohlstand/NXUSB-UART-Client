@@ -125,14 +125,14 @@ void VibroWidget::openContextMenu(const QPoint &p)
 {
     QMenu menu;
 
-    QAction *v1 = menu.addAction("Quiet short vibro test");
-    QAction *v2 = menu.addAction("Quiet long vibro test");
+    QAction *v1 = menu.addAction(tr("Test: Quiet short vibration"));
+    QAction *v2 = menu.addAction(tr("Test: Quiet long vibration"));
 
-    QAction *v3 = menu.addAction("Loud short vibro test");
-    QAction *v4 = menu.addAction("Loud long vibro test");
+    QAction *v3 = menu.addAction(tr("Test: Loud short vibration"));
+    QAction *v4 = menu.addAction(tr("Test: Loud long vibration"));
 
-    QAction *v5 = menu.addAction("Both short vibro test");
-    QAction *v6 = menu.addAction("Both long vibro test");
+    QAction *v5 = menu.addAction(tr("Test: Both short vibration"));
+    QAction *v6 = menu.addAction(tr("Test: Both long vibration"));
 
     QAction *reply = menu.exec(mapToGlobal(p));
 

@@ -68,10 +68,11 @@ private slots:
     void on_actionQuit_triggered();
     void on_actionAbout_triggered();
 
-    void on_serialPort_editingFinished();
-
+    void on_serialPort_currentTextChanged(const QString &arg1);
 
 private:
+    void refreshPorts();
+
     Ui::NXUsbMain *ui;
 };
 #endif // NXUSB_MAIN_H

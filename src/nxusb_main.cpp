@@ -27,11 +27,18 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QColorTransform>
+#include <QSerialPortInfo>
 #include <QtDebug>
 #include <QIcon>
 
 #include "nxusb_main.h"
 #include "./ui_nxusb_main.h"
+
+#ifdef _WIN32
+#   define DEFAULT_PORT "COM1"
+#else
+#   define DEFAULT_PORT "ttyUSB0"
+#endif
 
 void NXUsbMain::closeEvent(QCloseEvent *event)
 {
@@ -54,7 +61,12 @@ NXUsbMain::NXUsbMain(QWidget *parent)
     qRegisterMetaType<NXSendCmdQ>("NXSendCmdQ");
 
     m_settings.beginGroup("setup");
-    ui->serialPort->setText(m_settings.value("serial-port", "/dev/ttyUSB0").toString());
+
+    refreshPorts();
+    ui->serialPort->blockSignals(true);
+    ui->serialPort->setCurrentText(m_settings.value("serial-port", DEFAULT_PORT).toString());
+    ui->serialPort->blockSignals(false);
+
     ui->vibroLevel->setValue(m_settings.value("vibro-level", 100).toInt());
     m_joy.changeVibroLevel(ui->vibroLevel->value());
     m_settings.endGroup();
@@ -95,6 +107,8 @@ NXUsbMain::NXUsbMain(QWidget *parent)
 
     QObject::connect(ui->vibro, &VibroWidget::playTestRumble, &m_joy, &JoyHandler::playTestRumble, Qt::QueuedConnection);
     QObject::connect(ui->cmdSendReport, &QPushButton::clicked, &m_joy, &JoyHandler::requestSend);
+
+    QObject::connect(ui->serialRefresh, &QToolButton::clicked, this, &NXUsbMain::refreshPorts);
 
     QObject::connect(&m_joy, &JoyHandler::debugMessage, this, [this](const QString &msg)->void
     {
@@ -157,14 +171,16 @@ void NXUsbMain::on_doConnect_clicked()
         m_serial.closeBus();
         ui->doConnect->setText(tr("Connect"));
         ui->serialPort->setEnabled(true);
+        ui->serialRefresh->setEnabled(true);
     }
     else
     {
-        m_serial.setBus(ui->serialPort->text());
+        m_serial.setBus(ui->serialPort->currentText());
         if(m_serial.openBus())
         {
             ui->doConnect->setText(tr("Disconnect"));
             ui->serialPort->setEnabled(false);
+            ui->serialRefresh->setEnabled(false);
             m_joy.start();
 
             on_querySetup_clicked();
@@ -218,13 +234,39 @@ void NXUsbMain::on_actionAbout_triggered()
     QMessageBox::about(this, this->windowTitle(), tr("An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.\n\nAuthor - Novichkov Vitaliy Dmitriyevich."));
 }
 
-
-void NXUsbMain::on_serialPort_editingFinished()
+void NXUsbMain::on_serialPort_currentTextChanged(const QString &arg1)
 {
     m_settings.beginGroup("setup");
-    m_settings.setValue("serial-port", ui->serialPort->text());
+    m_settings.setValue("serial-port", ui->serialPort->currentText());
     m_settings.endGroup();
 
     m_settings.sync();
 }
 
+void NXUsbMain::refreshPorts()
+{
+    QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+    QString backup = ui->serialPort->currentText();
+    bool found = false;
+
+    std::sort(ports.begin(), ports.end(), [](const QSerialPortInfo &a, const QSerialPortInfo &b)->bool
+    {
+        return a.portName() < b.portName();
+    });
+
+    ui->serialPort->blockSignals(true);
+    ui->serialPort->clear();
+
+    for(auto &port : ports)
+    {
+        ui->serialPort->addItem(port.portName());
+
+        if(port.portName() == backup)
+            found = true;
+    }
+
+    ui->serialPort->blockSignals(false);
+
+    if(found)
+        ui->serialPort->setCurrentText(backup);
+}

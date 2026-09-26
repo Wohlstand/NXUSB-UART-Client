@@ -45,5 +45,6 @@
         <file>buttons/stick-l-rd.png</file>
         <file>buttons/stick-l-ur.png</file>
         <file>buttons/stick-l-lu.png</file>
+        <file>tools/refresh.png</file>
     </qresource>
 </RCC>

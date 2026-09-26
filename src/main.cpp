@@ -25,6 +25,9 @@
 #include "nxusb_main.h"
 
 #include <QApplication>
+#include <QTranslator>
+#include <QLocale>
+
 
 int main(int argc, char *argv[])
 {
@@ -33,6 +36,10 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("NXUSB Client");
 
     QApplication a(argc, argv);
+    QTranslator tr;
+
+    if(tr.load("nxusb_client_" + QLocale::system().name(), QApplication::applicationDirPath()))
+        a.installTranslator(&tr);
 
     NXUsbMain w;
     w.show();

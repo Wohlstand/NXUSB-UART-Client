@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets SerialPort)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets SerialPort)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets SerialPort LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets SerialPort LinguistTools)
 find_package(SDL2 REQUIRED)
 
 set(PROJECT_SOURCES
@@ -35,12 +35,18 @@ set(PROJECT_SOURCES
     res/nxusb.qrc
 )
 
+qt_create_translation(QM_FILES
+    lang/nxusb_client_ru_RU.ts
+    ${PROJECT_SOURCES}
+)
+
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(nxusb-client
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        ${QM_FILES}
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET nxusb-client APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -56,6 +62,7 @@ else()
     else()
         add_executable(nxusb-client
             ${PROJECT_SOURCES}
+            ${QM_FILES}
         )
     endif()
 endif()
