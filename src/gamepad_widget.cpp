@@ -29,10 +29,23 @@
 
 #include "gamepad_widget.h"
 
-inline uint qHash(const QPoint& key, size_t seed = 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+namespace std
+{
+    template <> struct hash<QPoint>
+    {
+        size_t operator()(const QPoint &key, size_t seed) const
+        {
+            return qHashMulti(seed, key.x(), key.y());
+        }
+    };
+}
+#else
+inline uint qHash(const QPoint &key, uint seed = 0)
 {
     return qHash(static_cast<qint64>(key.x()) << 32 | key.y(), seed);
 }
+#endif
 
 GamepadWidget::GamepadWidget(QWidget *parent)
 : QWidget{parent}
