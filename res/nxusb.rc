@@ -1,0 +1,32 @@
+IDI_ICON1               ICON    DISCARDABLE     "icon/icon.ico"
+
+#include <windows.h>
+
+VS_VERSION_INFO     VERSIONINFO
+FILEVERSION         1, 0, 0, 0
+PRODUCTVERSION      1, 0, 0, 0
+FILEFLAGSMASK       0x3fL
+FILEFLAGS           0
+FILEOS              VOS_NT_WINDOWS32
+FILETYPE            VFT_APP
+FILESUBTYPE         VFT2_UNKNOWN
+BEGIN
+BLOCK   "VarFileInfo"
+BEGIN
+    VALUE   "Translation",  0x409,  1200
+END
+BLOCK   "StringFileInfo"
+BEGIN
+    BLOCK   "040904b0"
+    BEGIN
+        VALUE   "CompanyName",      "WohlSoft Team"
+        VALUE   "FileDescription",  "NXUSB UART Client"
+        VALUE   "FileVersion",      "v1.0.0"
+        VALUE   "InternalName",     "nxusb-client.exe"
+        VALUE   "LegalCopyright",   "(C) 2026 Novichkov Vitaliy Dmitriyevich"
+        VALUE   "OriginalFilename", "nxusb-client"
+        VALUE   "ProductName",      "NXUSB UART Client"
+        VALUE   "ProductVersion",   "v1.0.0"
+    END
+END
+END
