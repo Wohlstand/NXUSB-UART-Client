@@ -446,8 +446,8 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_UP, BUTTON_DPAD_UP);
     setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_DOWN, BUTTON_DPAD_DOWN);
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_START, BUTTON_MINUS);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_BACK, BUTTON_PLUS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_START, BUTTON_PLUS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_BACK, BUTTON_MINUS);
     setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_GUIDE, BUTTON_HOME);
     setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_MISC1, BUTTON_CAPTURE);
 

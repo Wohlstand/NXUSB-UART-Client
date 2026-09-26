@@ -44,8 +44,8 @@ enum NxBtButtons
     BUTTON_R               = 0x00400000,
     BUTTON_ZR              = 0x00800000,
 
-    BUTTON_PLUS            = 0x00000100,
-    BUTTON_MINUS           = 0x00000200,
+    BUTTON_MINUS           = 0x00000100,
+    BUTTON_PLUS            = 0x00000200,
     BUTTON_R_STICK_PRESS   = 0x00000400,
     BUTTON_L_STICK_PRESS   = 0x00000800,
     BUTTON_HOME            = 0x00001000,
