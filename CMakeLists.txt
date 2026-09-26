@@ -35,6 +35,10 @@ set(PROJECT_SOURCES
     res/nxusb.qrc
 )
 
+if(WIN32 AND NOT EMSCRIPTEN)
+    list(APPEND PROJECT_SOURCES res/nxusb.rc)
+endif()
+
 qt_create_translation(QM_FILES
     lang/nxusb_client_ru_RU.ts
     ${PROJECT_SOURCES}
