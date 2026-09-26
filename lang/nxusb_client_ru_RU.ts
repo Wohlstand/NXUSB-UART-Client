@@ -30,7 +30,7 @@
     </message>
     <message>
         <location filename="../src/nxusb_main.ui" line="206"/>
-        <location filename="../src/nxusb_main.cpp" line="172"/>
+        <location filename="../src/nxusb_main.cpp" line="171"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
@@ -121,22 +121,22 @@
         <translation>О программе...</translation>
     </message>
     <message>
-        <location filename="../src/nxusb_main.cpp" line="48"/>
+        <location filename="../src/nxusb_main.cpp" line="47"/>
         <source>Still working!</source>
         <translation>Всё ещё работает!</translation>
     </message>
     <message>
-        <location filename="../src/nxusb_main.cpp" line="48"/>
+        <location filename="../src/nxusb_main.cpp" line="47"/>
         <source>You can&apos;t close the program until you will disconnect the thing!</source>
         <translation>Вы не можете закрыть программу до тех пор, пока вы не отключите связь!</translation>
     </message>
     <message>
-        <location filename="../src/nxusb_main.cpp" line="181"/>
+        <location filename="../src/nxusb_main.cpp" line="180"/>
         <source>Disconnect</source>
         <translation>Отключиться</translation>
     </message>
     <message>
-        <location filename="../src/nxusb_main.cpp" line="234"/>
+        <location filename="../src/nxusb_main.cpp" line="233"/>
         <source>An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.
 
 Author - Novichkov Vitaliy Dmitriyevich.</source>
