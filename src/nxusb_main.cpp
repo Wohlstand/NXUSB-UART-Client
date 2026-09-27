@@ -230,7 +230,21 @@ void NXUsbMain::on_actionQuit_triggered()
 
 void NXUsbMain::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, this->windowTitle(), tr("An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.\n\nAuthor - Novichkov Vitaliy Dmitriyevich."));
+    QMessageBox about(this);
+    about.setWindowTitle(this->windowTitle());
+    about.setWindowIcon(this->windowIcon());
+    about.setIconPixmap(this->windowIcon().pixmap(48, 48));
+    about.setTextFormat(Qt::RichText);
+    about.setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
+    about.setText(tr("<h4>An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.</h4>\n"
+           "<b>Author</b> - Novichkov Vitaliy Dmitriyevich.<br/>\n<br/>\n"
+           "<b>License</b>- MIT License<br/>\n<br/>\n"
+           "<b>Source code:</b> <a href=\"%1\">%1</a><br/>\n<br/>\n"
+           "<b>Library versions:</b> Qt %2, SDL %3")
+           .arg("https://gitea.wohlsoft.ru/Wohlstand/NXUSB-UART-Client",
+                qVersion(),
+                JoyHandler::getSDLVersion()));
+    about.exec();
 }
 
 void NXUsbMain::on_serialPort_currentTextChanged(const QString &arg1)

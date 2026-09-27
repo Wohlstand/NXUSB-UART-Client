@@ -70,6 +70,8 @@ public:
     explicit JoyHandler(QObject *o = nullptr);
     virtual ~JoyHandler();
 
+    static QString getSDLVersion();
+
     void start();
     void stop();
 

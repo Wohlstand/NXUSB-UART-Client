@@ -45,6 +45,7 @@
 
 typedef SDL_Gamepad NXUSB_GameController;
 typedef SDL_GamepadAxis NXUSB_GameControllerAxis;
+#   define NXUSB_JoystickEventState         SDL_SetJoystickEventsEnabled
 #   define NXUSB_GameControllerGetAxis      SDL_GetGamepadAxis
 #   define NXUSB_GameControllerGetButton    SDL_GetGamepadButton
 #   define NXUSB_JoystickInstanceID         SDL_GetJoystickID
@@ -57,6 +58,9 @@ typedef SDL_GamepadAxis NXUSB_GameControllerAxis;
 #   define NXUSB_GameControllerHasSensor    SDL_GamepadHasSensor
 #   define NXUSB_GameControllerSetSensorEnabled SDL_SetGamepadSensorEnabled
 #   define NXUSB_GameControllerHasRumble(x) SDL_GetBooleanProperty(SDL_GetGamepadProperties(x), SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false)
+#   define NXUSB_GameControllerClose        SDL_CloseGamepad
+#   define NXUSB_JoystickOpen               SDL_OpenJoystick
+#   define NXUSB_JoystickClose              SDL_CloseJoystick
 
 #   define NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO
 
@@ -87,10 +91,15 @@ typedef SDL_GamepadAxis NXUSB_GameControllerAxis;
 #   define NX_TRUE true
 #   define NX_FALSE false
 
+#   define NX_SDL_QUIT              SDL_EVENT_QUIT
+#   define NX_SDL_JOYDEVICEADDED    SDL_EVENT_JOYSTICK_ADDED
+#   define NX_SDL_JOYDEVICEREMOVED  SDL_EVENT_JOYSTICK_REMOVED
+
 #else
 
 typedef SDL_GameController NXUSB_GameController;
 typedef SDL_GameControllerAxis NXUSB_GameControllerAxis;
+#   define NXUSB_JoystickEventState         SDL_JoystickEventState
 #   define NXUSB_GameControllerGetAxis      SDL_GameControllerGetAxis
 #   define NXUSB_GameControllerGetButton    SDL_GameControllerGetButton
 #   define NXUSB_JoystickName               SDL_JoystickName
@@ -103,6 +112,9 @@ typedef SDL_GameControllerAxis NXUSB_GameControllerAxis;
 #   define NXUSB_GameControllerHasSensor    SDL_GameControllerHasSensor
 #   define NXUSB_GameControllerSetSensorEnabled SDL_GameControllerSetSensorEnabled
 #   define NXUSB_GameControllerHasRumble(x) SDL_GameControllerHasRumble(x)
+#   define NXUSB_GameControllerClose        SDL_GameControllerClose
+#   define NXUSB_JoystickOpen               SDL_JoystickOpen
+#   define NXUSB_JoystickClose              SDL_JoystickClose
 
 #   define NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO
 
@@ -132,6 +144,10 @@ typedef SDL_GameControllerAxis NXUSB_GameControllerAxis;
 
 #   define NX_TRUE SDL_TRUE
 #   define NX_FALSE SDL_FALSE
+
+#   define NX_SDL_QUIT              SDL_QUIT
+#   define NX_SDL_JOYDEVICEADDED    SDL_JOYDEVICEADDED
+#   define NX_SDL_JOYDEVICEREMOVED  SDL_JOYDEVICEREMOVED
 
 #endif
 
@@ -201,6 +217,22 @@ JoyHandler::~JoyHandler()
 {
     stop();
     SDL_Quit();
+}
+
+QString JoyHandler::getSDLVersion()
+{
+#ifdef NXUSB_USE_SDL3
+    int sdl_ver = SDL_GetVersion();
+    return QString("%1.%2.%3")
+                    .arg(SDL_VERSIONNUM_MAJOR(sdl_ver))
+                    .arg(SDL_VERSIONNUM_MINOR(sdl_ver))
+                    .arg(SDL_VERSIONNUM_MICRO(sdl_ver));
+#else
+    SDL_version ver;
+    SDL_GetVersion(&ver);
+
+    return QString("%1.%2.%3").arg(ver.major).arg(ver.minor).arg(ver.patch);
+#endif
 }
 
 void JoyHandler::start()
@@ -298,17 +330,15 @@ void JoyHandler::runner()
     const Uint32 wait_delay = 1000 / 125;
     int numJoysticks;
 
-#ifdef NXUSB_USE_SDL3
-    SDL_SetJoystickEventsEnabled(true);
+    NXUSB_JoystickEventState(NX_TRUE);
 
+#ifdef NXUSB_USE_SDL3
     // Open already plugged joysticks
     SDL_JoystickID *joysticks = SDL_GetJoysticks(&numJoysticks);
 
     for(int i = 0; i < numJoysticks; ++i)
         addJoystick(joysticks[i]);
 #else
-    SDL_JoystickEventState(SDL_ENABLE);
-
     // Open already plugged joysticks
     numJoysticks = SDL_NumJoysticks();
 
@@ -327,19 +357,11 @@ void JoyHandler::runner()
         {
             switch(evt.type)
             {
-#ifdef NXUSB_USE_SDL3
-            case SDL_EVENT_QUIT:
-#else
-            case SDL_QUIT:
-#endif
+            case NX_SDL_QUIT:
                 m_running = false;
                 break;
 
-#ifdef NXUSB_USE_SDL3
-            case SDL_EVENT_JOYSTICK_ADDED:
-#else
-            case SDL_JOYDEVICEADDED:
-#endif
+            case NX_SDL_JOYDEVICEADDED:
 #ifdef NXUSB_USE_SDL3
                 emit debugMessage(QString("-- Connecting new gamepad! Instance %1").arg(evt.jdevice.which));
 #else
@@ -349,11 +371,7 @@ void JoyHandler::runner()
                 joysticksSyncList();
                 break;
 
-#ifdef NXUSB_USE_SDL3
-            case SDL_EVENT_JOYSTICK_REMOVED:
-#else
-            case SDL_JOYDEVICEREMOVED:
-#endif
+            case NX_SDL_JOYDEVICEREMOVED:
                 emit debugMessage(QString("-- Disconnecting old gamepad! Instance %1").arg(evt.jdevice.which));
                 removeJoystick(evt.jdevice.which);
                 resetState();
@@ -426,19 +444,11 @@ uint16_t JoyHandler::applyVibroLevel(uint16_t vibro)
 
 void JoyHandler::ctrlCleanUp(ControllerEntry &entry)
 {
-#ifdef NXUSB_USE_SDL3
     if(entry.ctrl)
-        SDL_CloseGamepad(entry.ctrl);
+        NXUSB_GameControllerClose(entry.ctrl);
 
     if(entry.joy)
-        SDL_CloseJoystick(entry.joy);
-#else
-    if(entry.ctrl)
-        SDL_GameControllerClose(entry.ctrl);
-
-    if(entry.joy)
-        SDL_JoystickClose(entry.joy);
-#endif
+        NXUSB_JoystickClose(entry.joy);
 
     entry.ctrl = nullptr;
     entry.joy = nullptr;
@@ -449,11 +459,7 @@ void JoyHandler::addJoystick(NXUSB_JoyIdx joyIdx)
 {
     ControllerEntry entry;
 
-#ifdef NXUSB_USE_SDL3
-    entry.joy = SDL_OpenJoystick(joyIdx);
-#else
-    entry.joy = SDL_JoystickOpen(joyIdx);
-#endif
+    entry.joy = NXUSB_JoystickOpen(joyIdx);
 
     if(!entry.joy)
     {
