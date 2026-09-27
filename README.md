@@ -10,8 +10,8 @@
 Сам проект использует Qt и SDL2. Разработано и протестировано на Linux и Windows, на macOS не тестировалось, но в теории должно работать без проблем.
 
 ## Требования
-- Qt 5 или Qt 6.
-- SDL2 (можно собрать из исходников https://github.com/libsdl-org/SDL/tree/SDL2):
+- Qt 5 или Qt 6, обязательны компоненты Core, Gui, Widgets и SerialPort.
+- SDL2 (можно собрать из исходников https://github.com/libsdl-org/SDL/tree/SDL2) или SDL3:
   - Клонировать репозиторий так из ветки `SDL2`: `git clone https://github.com/libsdl-org/SDL.git -b SDL2 SDL2`
 - Компилятор совместимый со стандартом C++17.
 - CMake 3.16 и новее.

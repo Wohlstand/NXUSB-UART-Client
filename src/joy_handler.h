@@ -33,16 +33,34 @@
 
 #include "buttons.h"
 
+#ifndef SDL_joystick_h_
 typedef int32_t SDL_JoystickID;
 
 struct _SDL_Joystick;
 typedef struct _SDL_Joystick SDL_Joystick;
+#endif
 
+#ifndef SDL_gamecontroller_h_
 struct _SDL_GameController;
 typedef struct _SDL_GameController SDL_GameController;
+#endif
 
+#ifndef SDL_gamepad_h_
+typedef struct SDL_Gamepad SDL_Gamepad;
+#endif
+
+#ifndef SDL_thread_h_
 struct SDL_Thread;
 typedef struct SDL_Thread SDL_Thread;
+#endif
+
+#ifdef NXUSB_USE_SDL3
+typedef uint32_t NXUSB_JoyIdx;
+#else
+typedef int NXUSB_JoyIdx;
+#endif
+
+
 
 class JoyHandler : public QObject
 {
@@ -103,7 +121,11 @@ private:
     {
         QString name;
         SDL_Joystick *joy = nullptr;
+#ifdef NXUSB_USE_SDL3
+        SDL_Gamepad *ctrl = nullptr;
+#else
         SDL_GameController *ctrl = nullptr;
+#endif
         bool swap_buttons = false;
         bool has_gyro = false;
         bool has_accel = false;
@@ -116,7 +138,7 @@ private:
 
     void resetState();
 
-    void addJoystick(int joyIdx);
+    void addJoystick(NXUSB_JoyIdx joyIdx);
     void removeJoystick(int instance);
     bool joystickProcess(ControllerEntry &entry, bool *buttons, bool *tilting);
 

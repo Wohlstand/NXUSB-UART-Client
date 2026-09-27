@@ -22,16 +22,118 @@
  * SOFTWARE.
  */
 
-#include "joy_handler.h"
+#ifdef NXUSB_USE_SDL3
+#   include <SDL3/SDL_stdinc.h>
+#   include <SDL3/SDL.h>
+#   include <SDL3/SDL_joystick.h>
+#   include <SDL3/SDL_thread.h>
+#   include <SDL3/SDL_gamepad.h>
+#else
+#   include <SDL2/SDL_stdinc.h>
+#   include <SDL2/SDL.h>
+#   include <SDL2/SDL_joystick.h>
+#   include <SDL2/SDL_thread.h>
+#   include <SDL2/SDL_gamecontroller.h>
+#endif
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_joystick.h>
-#include <SDL2/SDL_thread.h>
-#include <SDL2/SDL_gamecontroller.h>
+#include "joy_handler.h"
 
 #include <QThread>
 #include <QtDebug>
+
+#ifdef NXUSB_USE_SDL3
+
+typedef SDL_Gamepad NXUSB_GameController;
+typedef SDL_GamepadAxis NXUSB_GameControllerAxis;
+#   define NXUSB_GameControllerGetAxis      SDL_GetGamepadAxis
+#   define NXUSB_GameControllerGetButton    SDL_GetGamepadButton
+#   define NXUSB_JoystickInstanceID         SDL_GetJoystickID
+#   define NXUSB_JoystickName               SDL_GetJoystickName
+#   define NXUSB_IsGameController           SDL_IsGamepad
+#   define NXUSB_GameControllerOpen         SDL_OpenGamepad
+#   define NXUSB_GameControllerGetSensorData SDL_GetGamepadSensorData
+#   define NXUSB_GameControllerRumble       SDL_RumbleGamepad
+#   define NXUSB_GameControllerGetType      SDL_GetGamepadType
+#   define NXUSB_GameControllerHasSensor    SDL_GamepadHasSensor
+#   define NXUSB_GameControllerSetSensorEnabled SDL_SetGamepadSensorEnabled
+#   define NXUSB_GameControllerHasRumble(x) SDL_GetBooleanProperty(SDL_GetGamepadProperties(x), SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false)
+
+#   define NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO
+
+#   define NX_CONTROLLER_AXIS_LEFTX     SDL_GAMEPAD_AXIS_LEFTX
+#   define NX_CONTROLLER_AXIS_LEFTY     SDL_GAMEPAD_AXIS_LEFTY
+#   define NX_CONTROLLER_AXIS_RIGHTX    SDL_GAMEPAD_AXIS_RIGHTX
+#   define NX_CONTROLLER_AXIS_RIGHTY    SDL_GAMEPAD_AXIS_RIGHTY
+
+#   define NX_CONTROLLER_BUTTON_LEFTSTICK   SDL_GAMEPAD_BUTTON_LEFT_STICK
+#   define NX_CONTROLLER_BUTTON_RIGHTSTICK  SDL_GAMEPAD_BUTTON_RIGHT_STICK
+#   define NX_CONTROLLER_BUTTON_DPAD_LEFT   SDL_GAMEPAD_BUTTON_DPAD_LEFT
+#   define NX_CONTROLLER_BUTTON_DPAD_RIGHT  SDL_GAMEPAD_BUTTON_DPAD_RIGHT
+#   define NX_CONTROLLER_BUTTON_DPAD_UP     SDL_GAMEPAD_BUTTON_DPAD_UP
+#   define NX_CONTROLLER_BUTTON_DPAD_DOWN   SDL_GAMEPAD_BUTTON_DPAD_DOWN
+#   define NX_CONTROLLER_BUTTON_START       SDL_GAMEPAD_BUTTON_START
+#   define NX_CONTROLLER_BUTTON_BACK        SDL_GAMEPAD_BUTTON_BACK
+#   define NX_CONTROLLER_BUTTON_GUIDE       SDL_GAMEPAD_BUTTON_GUIDE
+#   define NX_CONTROLLER_BUTTON_MISC1       SDL_GAMEPAD_BUTTON_MISC1
+#   define NX_CONTROLLER_BUTTON_A           SDL_GAMEPAD_BUTTON_SOUTH
+#   define NX_CONTROLLER_BUTTON_B           SDL_GAMEPAD_BUTTON_EAST
+#   define NX_CONTROLLER_BUTTON_X           SDL_GAMEPAD_BUTTON_WEST
+#   define NX_CONTROLLER_BUTTON_Y           SDL_GAMEPAD_BUTTON_NORTH
+#   define NX_CONTROLLER_BUTTON_LEFTSHOULDER    SDL_GAMEPAD_BUTTON_LEFT_SHOULDER
+#   define NX_CONTROLLER_BUTTON_RIGHTSHOULDER   SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER
+#   define NX_CONTROLLER_AXIS_TRIGGERLEFT   SDL_GAMEPAD_AXIS_LEFT_TRIGGER
+#   define NX_CONTROLLER_AXIS_TRIGGERRIGHT  SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+
+#   define NX_TRUE true
+#   define NX_FALSE false
+
+#else
+
+typedef SDL_GameController NXUSB_GameController;
+typedef SDL_GameControllerAxis NXUSB_GameControllerAxis;
+#   define NXUSB_GameControllerGetAxis      SDL_GameControllerGetAxis
+#   define NXUSB_GameControllerGetButton    SDL_GameControllerGetButton
+#   define NXUSB_JoystickName               SDL_JoystickName
+#   define NXUSB_JoystickInstanceID         SDL_JoystickInstanceID
+#   define NXUSB_IsGameController           SDL_IsGameController
+#   define NXUSB_GameControllerOpen         SDL_GameControllerOpen
+#   define NXUSB_GameControllerGetSensorData SDL_GameControllerGetSensorData
+#   define NXUSB_GameControllerRumble       SDL_GameControllerRumble
+#   define NXUSB_GameControllerGetType      SDL_GameControllerGetType
+#   define NXUSB_GameControllerHasSensor    SDL_GameControllerHasSensor
+#   define NXUSB_GameControllerSetSensorEnabled SDL_GameControllerSetSensorEnabled
+#   define NXUSB_GameControllerHasRumble(x) SDL_GameControllerHasRumble(x)
+
+#   define NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO
+
+#   define NX_CONTROLLER_AXIS_LEFTX     SDL_CONTROLLER_AXIS_LEFTX
+#   define NX_CONTROLLER_AXIS_LEFTY     SDL_CONTROLLER_AXIS_LEFTY
+#   define NX_CONTROLLER_AXIS_RIGHTX    SDL_CONTROLLER_AXIS_RIGHTX
+#   define NX_CONTROLLER_AXIS_RIGHTY    SDL_CONTROLLER_AXIS_RIGHTY
+
+#   define NX_CONTROLLER_BUTTON_LEFTSTICK   SDL_CONTROLLER_BUTTON_LEFTSTICK
+#   define NX_CONTROLLER_BUTTON_RIGHTSTICK  SDL_CONTROLLER_BUTTON_RIGHTSTICK
+#   define NX_CONTROLLER_BUTTON_DPAD_LEFT   SDL_CONTROLLER_BUTTON_DPAD_LEFT
+#   define NX_CONTROLLER_BUTTON_DPAD_RIGHT  SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+#   define NX_CONTROLLER_BUTTON_DPAD_UP     SDL_CONTROLLER_BUTTON_DPAD_UP
+#   define NX_CONTROLLER_BUTTON_DPAD_DOWN   SDL_CONTROLLER_BUTTON_DPAD_DOWN
+#   define NX_CONTROLLER_BUTTON_START       SDL_CONTROLLER_BUTTON_START
+#   define NX_CONTROLLER_BUTTON_BACK        SDL_CONTROLLER_BUTTON_BACK
+#   define NX_CONTROLLER_BUTTON_GUIDE       SDL_CONTROLLER_BUTTON_GUIDE
+#   define NX_CONTROLLER_BUTTON_MISC1       SDL_CONTROLLER_BUTTON_MISC1
+#   define NX_CONTROLLER_BUTTON_A           SDL_CONTROLLER_BUTTON_A
+#   define NX_CONTROLLER_BUTTON_B           SDL_CONTROLLER_BUTTON_B
+#   define NX_CONTROLLER_BUTTON_X           SDL_CONTROLLER_BUTTON_X
+#   define NX_CONTROLLER_BUTTON_Y           SDL_CONTROLLER_BUTTON_Y
+#   define NX_CONTROLLER_BUTTON_LEFTSHOULDER    SDL_CONTROLLER_BUTTON_LEFTSHOULDER
+#   define NX_CONTROLLER_BUTTON_RIGHTSHOULDER   SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
+#   define NX_CONTROLLER_AXIS_TRIGGERLEFT   SDL_CONTROLLER_AXIS_TRIGGERLEFT
+#   define NX_CONTROLLER_AXIS_TRIGGERRIGHT  SDL_CONTROLLER_AXIS_TRIGGERRIGHT
+
+#   define NX_TRUE SDL_TRUE
+#   define NX_FALSE SDL_FALSE
+
+#endif
 
 
 #define SWITCH_GYRO_SCALE_MULT 936.0
@@ -58,7 +160,15 @@ JoyHandler::JoyHandler(QObject *o) :
 {
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-    SDL_Init(SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_HAPTIC | SDL_INIT_TIMER | SDL_INIT_SENSOR);
+    SDL_Init(
+        SDL_INIT_EVENTS | SDL_INIT_JOYSTICK |
+#ifdef NXUSB_USE_SDL3
+        SDL_INIT_GAMEPAD |
+#else
+        SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER |
+#endif
+        SDL_INIT_HAPTIC | SDL_INIT_SENSOR
+    );
 
     resetState();
 }
@@ -186,14 +296,25 @@ void JoyHandler::runner()
     SDL_Event evt;
     Uint32 ticks_prev, ticks_cur;
     const Uint32 wait_delay = 1000 / 125;
+    int numJoysticks;
 
+#ifdef NXUSB_USE_SDL3
+    SDL_SetJoystickEventsEnabled(true);
+
+    // Open already plugged joysticks
+    SDL_JoystickID *joysticks = SDL_GetJoysticks(&numJoysticks);
+
+    for(int i = 0; i < numJoysticks; ++i)
+        addJoystick(joysticks[i]);
+#else
     SDL_JoystickEventState(SDL_ENABLE);
 
     // Open already plugged joysticks
-    int numJoysticks = SDL_NumJoysticks();
+    numJoysticks = SDL_NumJoysticks();
 
     for(int i = 0; i < numJoysticks; ++i)
         addJoystick(i);
+#endif
 
     joysticksSyncList();
 
@@ -206,17 +327,33 @@ void JoyHandler::runner()
         {
             switch(evt.type)
             {
+#ifdef NXUSB_USE_SDL3
+            case SDL_EVENT_QUIT:
+#else
             case SDL_QUIT:
+#endif
                 m_running = false;
                 break;
 
+#ifdef NXUSB_USE_SDL3
+            case SDL_EVENT_JOYSTICK_ADDED:
+#else
             case SDL_JOYDEVICEADDED:
+#endif
+#ifdef NXUSB_USE_SDL3
+                emit debugMessage(QString("-- Connecting new gamepad! Instance %1").arg(evt.jdevice.which));
+#else
                 emit debugMessage(QString("-- Connecting new gamepad! Index %1").arg(evt.jdevice.which));
+#endif
                 addJoystick(evt.jdevice.which);
                 joysticksSyncList();
                 break;
 
+#ifdef NXUSB_USE_SDL3
+            case SDL_EVENT_JOYSTICK_REMOVED:
+#else
             case SDL_JOYDEVICEREMOVED:
+#endif
                 emit debugMessage(QString("-- Disconnecting old gamepad! Instance %1").arg(evt.jdevice.which));
                 removeJoystick(evt.jdevice.which);
                 resetState();
@@ -289,22 +426,34 @@ uint16_t JoyHandler::applyVibroLevel(uint16_t vibro)
 
 void JoyHandler::ctrlCleanUp(ControllerEntry &entry)
 {
+#ifdef NXUSB_USE_SDL3
+    if(entry.ctrl)
+        SDL_CloseGamepad(entry.ctrl);
+
+    if(entry.joy)
+        SDL_CloseJoystick(entry.joy);
+#else
     if(entry.ctrl)
         SDL_GameControllerClose(entry.ctrl);
 
     if(entry.joy)
         SDL_JoystickClose(entry.joy);
+#endif
 
     entry.ctrl = nullptr;
     entry.joy = nullptr;
 }
 
 
-void JoyHandler::addJoystick(int joyIdx)
+void JoyHandler::addJoystick(NXUSB_JoyIdx joyIdx)
 {
     ControllerEntry entry;
 
+#ifdef NXUSB_USE_SDL3
+    entry.joy = SDL_OpenJoystick(joyIdx);
+#else
     entry.joy = SDL_JoystickOpen(joyIdx);
+#endif
 
     if(!entry.joy)
     {
@@ -312,12 +461,12 @@ void JoyHandler::addJoystick(int joyIdx)
         return;
     }
 
-    entry.name = QString::fromUtf8(SDL_JoystickName(entry.joy));
+    entry.name = QString::fromUtf8(NXUSB_JoystickName(entry.joy));
     emit debugMessage(QString("Opened joystick: %1").arg(entry.name));
 
-    if(SDL_IsGameController(joyIdx))
+    if(NXUSB_IsGameController(joyIdx))
     {
-        entry.ctrl = SDL_GameControllerOpen(joyIdx);
+        entry.ctrl = NXUSB_GameControllerOpen(joyIdx);
         if(!entry.ctrl)
         {
             emit debugMessage(QString("Failed to open joystick as a game controller: %1").arg(QString::fromUtf8(SDL_GetError())));
@@ -327,28 +476,28 @@ void JoyHandler::addJoystick(int joyIdx)
 
         entry.swap_buttons = true;
 
-        if(SDL_GameControllerGetType(entry.ctrl) == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO)
+        if(NXUSB_GameControllerGetType(entry.ctrl) == NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO)
             entry.swap_buttons = false;
 
-        if(SDL_GameControllerHasSensor(entry.ctrl, SDL_SENSOR_GYRO))
+        if(NXUSB_GameControllerHasSensor(entry.ctrl, SDL_SENSOR_GYRO))
         {
-            SDL_GameControllerSetSensorEnabled(entry.ctrl, SDL_SENSOR_GYRO, SDL_TRUE);
+            NXUSB_GameControllerSetSensorEnabled(entry.ctrl, SDL_SENSOR_GYRO, NX_TRUE);
             entry.has_gyro = true;
         }
 
-        if(SDL_GameControllerHasSensor(entry.ctrl, SDL_SENSOR_ACCEL))
+        if(NXUSB_GameControllerHasSensor(entry.ctrl, SDL_SENSOR_ACCEL))
         {
-            SDL_GameControllerSetSensorEnabled(entry.ctrl, SDL_SENSOR_ACCEL, SDL_TRUE);
+            NXUSB_GameControllerSetSensorEnabled(entry.ctrl, SDL_SENSOR_ACCEL, NX_TRUE);
             entry.has_accel = true;
         }
 
-        if(SDL_GameControllerHasRumble(entry.ctrl))
+        if(NXUSB_GameControllerHasRumble(entry.ctrl))
         {
             entry.has_rumble = true;
         }
     }
 
-    SDL_JoystickID instance = SDL_JoystickInstanceID(entry.joy);
+    SDL_JoystickID instance = NXUSB_JoystickInstanceID(entry.joy);
 
     m_joysticks.insert(instance, std::move(entry));
 }
@@ -366,10 +515,9 @@ void JoyHandler::removeJoystick(int instance)
 }
 
 
-
-static inline float processAxis(SDL_GameController *ctrl, SDL_GameControllerAxis axe)
+static inline float processAxis(NXUSB_GameController *ctrl, NXUSB_GameControllerAxis axe)
 {
-    float x = (float)SDL_GameControllerGetAxis(ctrl, axe) / 32767.0f;
+    float x = (float)NXUSB_GameControllerGetAxis(ctrl, axe) / 32767.0f;
 
     // Clamp
     if(x > 1.0f)
@@ -393,14 +541,14 @@ static inline float filterDead(float in, float  x, float y)
 }
 
 #define setButton(dst, ctrl, key, mask) \
-    if(SDL_GameControllerGetButton((ctrl), (key)) > 0) \
+    if(NXUSB_GameControllerGetButton((ctrl), (key)) > 0) \
         (dst) |= (mask); \
     else \
         (dst) &= ~(mask);
 
 
 #define setTrigger(dst, ctrl, key, mask) \
-    if(SDL_GameControllerGetAxis((ctrl), (key)) > 500) \
+    if(NXUSB_GameControllerGetAxis((ctrl), (key)) > 500) \
         (dst) |= (mask); \
     else \
         (dst) &= ~(mask);
@@ -420,10 +568,10 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
 
     // Read buttons state
 
-    float axis_l_x_val = processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_LEFTX);
-    float axis_l_y_val = -processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_LEFTY);
-    float axis_r_x_val = processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_RIGHTX);
-    float axis_r_y_val = -processAxis(entry.ctrl, SDL_CONTROLLER_AXIS_RIGHTY);
+    float axis_l_x_val = processAxis(entry.ctrl, NX_CONTROLLER_AXIS_LEFTX);
+    float axis_l_y_val = -processAxis(entry.ctrl, NX_CONTROLLER_AXIS_LEFTY);
+    float axis_r_x_val = processAxis(entry.ctrl, NX_CONTROLLER_AXIS_RIGHTX);
+    float axis_r_y_val = -processAxis(entry.ctrl, NX_CONTROLLER_AXIS_RIGHTY);
 
     m_state.stick_l[0] = axis_l_x_val = filterDead(axis_l_x_val, axis_l_x_val, axis_l_y_val);
     m_state.stick_l[1] = axis_l_y_val = filterDead(axis_l_y_val, axis_l_x_val, axis_l_y_val);
@@ -438,29 +586,29 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     m_buttons.data.state.stick_r[0] = tmp[0];
     m_buttons.data.state.stick_r[1] = tmp[1];
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_LEFTSTICK, BUTTON_L_STICK_PRESS);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_RIGHTSTICK, BUTTON_R_STICK_PRESS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_LEFTSTICK, BUTTON_L_STICK_PRESS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_RIGHTSTICK, BUTTON_R_STICK_PRESS);
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_LEFT, BUTTON_DPAD_LEFT);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, BUTTON_DPAD_RIGHT);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_UP, BUTTON_DPAD_UP);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_DPAD_DOWN, BUTTON_DPAD_DOWN);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_DPAD_LEFT, BUTTON_DPAD_LEFT);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_DPAD_RIGHT, BUTTON_DPAD_RIGHT);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_DPAD_UP, BUTTON_DPAD_UP);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_DPAD_DOWN, BUTTON_DPAD_DOWN);
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_START, BUTTON_PLUS);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_BACK, BUTTON_MINUS);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_GUIDE, BUTTON_HOME);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_MISC1, BUTTON_CAPTURE);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_START, BUTTON_PLUS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_BACK, BUTTON_MINUS);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_GUIDE, BUTTON_HOME);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_MISC1, BUTTON_CAPTURE);
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_A, entry.swap_buttons ? BUTTON_B : BUTTON_A);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_B, entry.swap_buttons ? BUTTON_A : BUTTON_B);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_X, entry.swap_buttons ? BUTTON_Y : BUTTON_X);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_Y, entry.swap_buttons ? BUTTON_X : BUTTON_Y);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_A, entry.swap_buttons ? BUTTON_B : BUTTON_A);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_B, entry.swap_buttons ? BUTTON_A : BUTTON_B);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_X, entry.swap_buttons ? BUTTON_Y : BUTTON_X);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_Y, entry.swap_buttons ? BUTTON_X : BUTTON_Y);
 
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, BUTTON_L);
-    setButton(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, BUTTON_R);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_LEFTSHOULDER, BUTTON_L);
+    setButton(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_BUTTON_RIGHTSHOULDER, BUTTON_R);
 
-    setTrigger(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_AXIS_TRIGGERLEFT, BUTTON_ZL);
-    setTrigger(m_buttons.data.state.buttons, entry.ctrl, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, BUTTON_ZR);
+    setTrigger(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_AXIS_TRIGGERLEFT, BUTTON_ZL);
+    setTrigger(m_buttons.data.state.buttons, entry.ctrl, NX_CONTROLLER_AXIS_TRIGGERRIGHT, BUTTON_ZR);
 
     if(memcmp(&m_buttons.data.state, &bOld.data.state, sizeof(m_buttons.data.state)) != 0)
         *buttons = true;
@@ -471,12 +619,12 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
     {
         // Read tilting state if available
         if(entry.has_gyro)
-            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_GYRO, m_state.gyro, 3);
+            NXUSB_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_GYRO, m_state.gyro, 3);
         else
             memset(m_state.gyro, 0, sizeof(float) * 3);
 
         if(entry.has_accel)
-            SDL_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_ACCEL, m_state.accel, 3);
+            NXUSB_GameControllerGetSensorData(entry.ctrl, SDL_SENSOR_ACCEL, m_state.accel, 3);
         else
             memset(m_state.accel, 0, sizeof(float) * 3);
     }
@@ -510,19 +658,19 @@ bool JoyHandler::joystickProcess(ControllerEntry &entry, bool *buttons, bool *ti
             qDebug() << "Rumble:" << rumble_ll << rumble_lh << rumble_rl << rumble_rh;
 #endif
 
-        SDL_GameControllerRumble(entry.ctrl,
-                                 applyVibroLevel(SDL_max(rumble_ll, rumble_rl)),
-                                 applyVibroLevel(SDL_max(rumble_lh, rumble_rh)),
-                                 300);
+        NXUSB_GameControllerRumble(entry.ctrl,
+                                   applyVibroLevel(SDL_max(rumble_ll, rumble_rl)),
+                                   applyVibroLevel(SDL_max(rumble_lh, rumble_rh)),
+                                   300);
     }
     m_rumbleMutex.unlock();
 
     if(m_testVibro)
     {
-        SDL_GameControllerRumble(entry.ctrl,
-                                 applyVibroLevel(m_testVibroLow),
-                                 applyVibroLevel(m_testVibroHigh),
-                                 m_testVibroDuration);
+        NXUSB_GameControllerRumble(entry.ctrl,
+                                   applyVibroLevel(m_testVibroLow),
+                                   applyVibroLevel(m_testVibroHigh),
+                                   m_testVibroDuration);
         m_testVibro = false;
     }
 
