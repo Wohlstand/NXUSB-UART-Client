@@ -140,7 +140,7 @@
         <source>&lt;h4&gt;An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.&lt;/h4&gt;
 &lt;b&gt;Author&lt;/b&gt; - Novichkov Vitaliy Dmitriyevich.&lt;br/&gt;
 &lt;br/&gt;
-&lt;b&gt;License&lt;/b&gt;- MIT License&lt;br/&gt;
+&lt;b&gt;License&lt;/b&gt; - MIT License&lt;br/&gt;
 &lt;br/&gt;
 &lt;b&gt;Source code:&lt;/b&gt; &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br/&gt;
 &lt;br/&gt;
@@ -148,19 +148,11 @@
         <translation>&lt;h4&gt;Клиент UART для аппаратного эмужятора контроллера Nintendo Switch Pro на основе STM32.&lt;/h4&gt;
 &lt;b&gt;Автор&lt;/b&gt; - Новичков Виталий Дмитриевич.
 &lt;br/&gt;
-&lt;b&gt;Лицензия&lt;/b&gt;- MIT&lt;br/&gt;
+&lt;b&gt;Лицензия&lt;/b&gt; - MIT&lt;br/&gt;
 &lt;br/&gt;
 &lt;b&gt;Исходный код:&lt;/b&gt; &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br/&gt;
 &lt;br/&gt;
 &lt;b&gt;Версии библиотек:&lt;/b&gt; Qt %2, SDL %3</translation>
-    </message>
-    <message>
-        <source>An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.
-
-Author - Novichkov Vitaliy Dmitriyevich.</source>
-        <translation type="vanished">Клиент UART для аппаратного эмужятора контроллера Nintendo Switch Pro на основе STM32.
-
-Автор - Новичков Виталий Дмитриевич.</translation>
     </message>
 </context>
 <context>

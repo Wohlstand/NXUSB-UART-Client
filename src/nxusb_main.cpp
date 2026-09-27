@@ -238,7 +238,7 @@ void NXUsbMain::on_actionAbout_triggered()
     about.setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
     about.setText(tr("<h4>An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.</h4>\n"
            "<b>Author</b> - Novichkov Vitaliy Dmitriyevich.<br/>\n<br/>\n"
-           "<b>License</b>- MIT License<br/>\n<br/>\n"
+           "<b>License</b> - MIT License<br/>\n<br/>\n"
            "<b>Source code:</b> <a href=\"%1\">%1</a><br/>\n<br/>\n"
            "<b>Library versions:</b> Qt %2, SDL %3")
            .arg("https://gitea.wohlsoft.ru/Wohlstand/NXUSB-UART-Client",
