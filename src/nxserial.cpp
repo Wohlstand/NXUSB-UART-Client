@@ -28,12 +28,69 @@
 
 static const uint8_t c_rumbleNeutral[8] = {0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40};
 
+
+static void nxDecode(QByteArray &inout)
+{
+    int in, out;
+
+    for(in = 0, out = 0; in < inout.size() && out < inout.size(); ++out)
+    {
+        Q_ASSERT(in < inout.size());
+        Q_ASSERT(out < inout.size());
+
+        uint8_t byte = (uint8_t)inout[in++];
+
+        if((byte & 0x40) != 0)
+        {
+            uint8_t outbyte = (byte << 4) & 0xF0;
+            if(in >= inout.size())
+                qWarning() << "Received an invalid encoding!";
+            else
+            {
+                byte = (uint8_t)inout[in++];
+                outbyte |= (byte & 0x0F);
+                inout[out] = (char)outbyte;
+            }
+        }
+        else
+        {
+            inout[out] = byte & 0x3F;
+        }
+    }
+
+    inout.resize(out);
+}
+
+#if 0
+static void nxEncode(const uint8_t *input, size_t len, QByteArray &out)
+{
+    out.reserve(len);
+
+    for(size_t i = 0; i < len; ++i)
+    {
+        uint8_t byte = input[i];
+
+        if(byte >= 0x80)
+            qDebug() << "!";
+
+        if(byte <= 0x3f) // Insert as-is
+            out.push_back(byte);
+        else // Split byte by two halves
+        {
+            out.push_back((char)(((byte >> 4) & 0x0F) | 0x40));
+            out.push_back((char)(byte & 0x0F));
+        }
+    }
+}
+#endif
+
+
 NXSerial::NXSerial(QObject *parent)
 : QObject{parent}
 {
     m_serialPort.setBaudRate(QSerialPort::Baud115200);
     m_serialPort.setDataBits(QSerialPort::Data8);
-    m_serialPort.setStopBits(QSerialPort::TwoStop);
+    m_serialPort.setStopBits(QSerialPort::OneStop);
     m_serialPort.setParity(QSerialPort::NoParity);
     m_serialPort.setFlowControl(QSerialPort::NoFlowControl);
     m_serialPort.setReadBufferSize(256);
@@ -100,6 +157,10 @@ bool NXSerial::write(const NXSendCmd &data)
         break;
     }
 
+    // QByteArray outData;
+    // nxEncode((const uint8_t*)&data, dataSize, outData);
+    // qDebug() << "ENCODE" << dataSize << outData.size();
+
     m_serialPort.write((const char*)&data, dataSize);
     m_serialPort.flush();
 
@@ -120,6 +181,10 @@ void NXSerial::handleReadyRead()
     {
         auto data = m_readData.mid(0, tail);
         m_readData.remove(0, tail + 1);
+
+        // qDebug() << "INPUT:  " << QString::fromUtf8(data.toHex(','));
+        nxDecode(data);
+        // qDebug() << "DECODE: " << QString::fromUtf8(data.toHex(','));
 
         if(data.size() > 0)
         {
@@ -189,7 +254,9 @@ void NXSerial::handleReadyRead()
 
 #ifdef DEBUG_BUILD
                 // Print everything but neutral
-                if(rumble.size() != 8 || memcmp(rumble.data(), c_rumbleNeutral, 8) != 0)
+                if(rumble.size() != 8)
+                    qDebug() << "INVALID Rumble data" << counter++ << QString::fromUtf8(rumble.toHex(','));
+                else if(memcmp(rumble.data(), c_rumbleNeutral, 8) != 0)
                     qDebug() << "Rumble data" << counter++ << QString::fromUtf8(rumble.toHex(','));
 #endif
 

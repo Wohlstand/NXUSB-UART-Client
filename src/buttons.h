@@ -80,6 +80,7 @@ enum NXCommand
     CMD_QueryIMU = 6,       // 1
     CMD_QueryVibro = 7,     // 1
     CMD_QueryConfig = 8,    // 1
+    CMD_TestByte = 9,       // 2
 
     CMD_END
 };

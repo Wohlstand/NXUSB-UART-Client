@@ -136,7 +136,7 @@
         <translation>Отключиться</translation>
     </message>
     <message>
-        <location filename="../src/nxusb_main.cpp" line="239"/>
+        <location filename="../src/nxusb_main.cpp" line="241"/>
         <source>&lt;h4&gt;An UART client for the STM32-based Nintendo(r) Switch Pro Controller hardware emualtor.&lt;/h4&gt;
 &lt;b&gt;Author&lt;/b&gt; - Novichkov Vitaliy Dmitriyevich.&lt;br/&gt;
 &lt;br/&gt;
@@ -158,32 +158,32 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/nxserial.cpp" line="59"/>
+        <location filename="../src/nxserial.cpp" line="116"/>
         <source>Failed to open port %1, error: %2</source>
         <translation>Не удалось открыть порт %1, ошибка: %2</translation>
     </message>
     <message>
-        <location filename="../src/nxserial.cpp" line="148"/>
+        <location filename="../src/nxserial.cpp" line="213"/>
         <source>Received invalid data for Player number: %1</source>
         <translation>Получены повреждённые данные для номера игрока: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxserial.cpp" line="161"/>
+        <location filename="../src/nxserial.cpp" line="226"/>
         <source>Received invalid IMU enable flag: %1</source>
         <translation>Получен некорретный флаг Инерциального Измерительного Блок (ИИБ): %1</translation>
     </message>
     <message>
-        <location filename="../src/nxserial.cpp" line="211"/>
+        <location filename="../src/nxserial.cpp" line="278"/>
         <source>Received invalid Vibro enable flag: %1</source>
         <translation>Полученон некорректное значение флага вибрации: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxserial.cpp" line="224"/>
+        <location filename="../src/nxserial.cpp" line="291"/>
         <source>Received invalid data for config setup: %1</source>
         <translation>Получены повреждённые данные для настроек: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxserial.cpp" line="251"/>
+        <location filename="../src/nxserial.cpp" line="318"/>
         <source>An I/O error occurred while reading the data from port %1, error: %2</source>
         <translation>Во время чтения данных из %1 произошла ошибка ввода/вывода, ошибка: %2</translation>
     </message>

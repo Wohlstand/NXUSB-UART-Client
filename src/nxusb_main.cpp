@@ -205,6 +205,8 @@ void NXUsbMain::on_cmdReset_clicked()
 void NXUsbMain::on_cmdPing_clicked()
 {
     cmd.cmd = CMD_Ping;
+    // cmd.cmd = CMD_TestByte;
+    // cmd.data.tail.tail[0] = 0xFF;
     m_serial.write(cmd);
     ui->debugOut->appendPlainText(QString("Ping sent"));
 }
