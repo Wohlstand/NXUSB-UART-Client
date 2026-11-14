@@ -482,8 +482,8 @@ void JoyHandler::addJoystick(NXUSB_JoyIdx joyIdx)
 
         entry.swap_buttons = true;
 
-        if(NXUSB_GameControllerGetType(entry.ctrl) == NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO)
-            entry.swap_buttons = false;
+        // if(NXUSB_GameControllerGetType(entry.ctrl) == NX_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO)
+        //     entry.swap_buttons = false;
 
         if(NXUSB_GameControllerHasSensor(entry.ctrl, SDL_SENSOR_GYRO))
         {
